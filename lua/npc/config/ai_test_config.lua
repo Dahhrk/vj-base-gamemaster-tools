@@ -1,6 +1,15 @@
 --[[
     AI Behaviors Test Configuration
     Test scenarios and presets for AI behavior testing
+    
+    NOTE: These test scenarios use placeholder weapon names (weapon_vj_smg1, weapon_vj_ar2).
+    Replace these with actual VJ Base weapon classes available on your server.
+    Common VJ Base weapons include:
+    - weapon_vj_9mmpistol
+    - weapon_vj_ak47
+    - weapon_vj_smg1
+    - weapon_vj_ar2
+    - weapon_vj_rpg
 ]]--
 
 VJGM = VJGM or {}

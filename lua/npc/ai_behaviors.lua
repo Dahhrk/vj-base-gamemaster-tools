@@ -583,8 +583,11 @@ if SERVER then
         if aiState.ammoPercent <= (ammoConfig.ReloadThreshold or 0.3) and not aiState.isReloading then
             aiState.isReloading = true
             
+            -- Get reload time from config
+            local reloadTime = VJGM.Config.Get("WeaponLogic", "AmmoManagement", {}).DefaultReloadTime or 2.0
+            
             -- Simulate reload time
-            timer.Simple(2, function()
+            timer.Simple(reloadTime, function()
                 if IsValid(npc) then
                     aiState.isReloading = false
                     aiState.ammoPercent = 1.0
@@ -599,7 +602,8 @@ if SERVER then
         
         -- Simulate ammo consumption (rough estimate)
         if IsValid(npc:GetEnemy()) and npc:GetEnemy():Health() > 0 then
-            aiState.ammoPercent = math.max(0, aiState.ammoPercent - 0.01)
+            local consumptionRate = VJGM.Config.Get("WeaponLogic", "AmmoManagement", {}).AmmoConsumptionRate or 0.01
+            aiState.ammoPercent = math.max(0, aiState.ammoPercent - consumptionRate)
         end
     end
     
@@ -718,8 +722,9 @@ if SERVER then
     function VJGM.AIBehaviors.HasLineOfSight(npc, target)
         if not IsValid(npc) or not IsValid(target) then return false end
         
-        local startPos = npc:GetPos() + Vector(0, 0, 50)
-        local endPos = target:GetPos() + Vector(0, 0, 50)
+        local eyeOffset = VJGM.Config.Get("TacticalAwareness", "EyeHeightOffset", 50)
+        local startPos = npc:GetPos() + Vector(0, 0, eyeOffset)
+        local endPos = target:GetPos() + Vector(0, 0, eyeOffset)
         
         local tr = util.TraceLine({
             start = startPos,

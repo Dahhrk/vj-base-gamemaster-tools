@@ -67,16 +67,14 @@ VJGM.Config.TargetPrioritization = {
     -- Re-evaluate targets interval (seconds)
     UpdateInterval = 2.0,
     
-    -- Weight for distance factor (closer = higher priority)
+    -- Priority calculation weights (should sum to 1.0 for balanced scoring)
+    -- Distance: Closer targets are prioritized
+    -- Threat: Higher threat entities are prioritized (players, medics, etc.)
+    -- Health: Lower health targets are prioritized for finishing
+    -- LineOfSight: Targets with clear LOS are prioritized
     DistanceWeight = 0.4,
-    
-    -- Weight for threat level factor
     ThreatWeight = 0.3,
-    
-    -- Weight for health factor (lower health = higher priority)
     HealthWeight = 0.2,
-    
-    -- Weight for line of sight factor
     LineOfSightWeight = 0.1,
     
     -- Maximum target distance (units)
@@ -280,6 +278,12 @@ VJGM.Config.WeaponLogic = {
         -- Reload when ammo below this percentage
         ReloadThreshold = 0.3,
         
+        -- Default reload time (seconds) - can be overridden per weapon
+        DefaultReloadTime = 2.0,
+        
+        -- Ammo consumption rate per update (simulated)
+        AmmoConsumptionRate = 0.01,
+        
         -- Seek cover while reloading
         CoverDuringReload = true,
         
@@ -373,6 +377,9 @@ VJGM.Config.TacticalAwareness = {
     
     -- Awareness radius (units)
     AwarenessRadius = 1500,
+    
+    -- Eye height offset for line of sight checks (units)
+    EyeHeightOffset = 50,
     
     -- React to nearby explosions
     ReactToExplosions = true,
