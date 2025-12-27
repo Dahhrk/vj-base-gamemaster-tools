@@ -374,31 +374,85 @@ if CLIENT then
         local presetsLabel = vgui.Create("DLabel", panel)
         presetsLabel:SetPos(10, 230)
         presetsLabel:SetSize(panel:GetWide() - 20, 20)
-        presetsLabel:SetText("Quick Presets:")
+        presetsLabel:SetText("Wave Templates:")
         presetsLabel:SetFont("DermaDefaultBold")
         
-        local basicBtn = vgui.Create("DButton", panel)
-        basicBtn:SetPos(10, 260)
-        basicBtn:SetSize(150, 25)
-        basicBtn:SetText("Basic Wave")
-        basicBtn.DoClick = function()
-            RunConsoleCommand("vjgm_test_basic")
-        end
+        -- Template browser
+        local templateScroll = vgui.Create("DScrollPanel", panel)
+        templateScroll:SetPos(10, 260)
+        templateScroll:SetSize(panel:GetWide() - 20, 250)
         
-        local roleBtn = vgui.Create("DButton", panel)
-        roleBtn:SetPos(170, 260)
-        roleBtn:SetSize(150, 25)
-        roleBtn:SetText("Role Squad Wave")
-        roleBtn.DoClick = function()
-            RunConsoleCommand("vjgm_test_role_wave")
-        end
+        -- Load wave templates
+        include("npc/wave_templates.lua")
         
-        local vehicleBtn = vgui.Create("DButton", panel)
-        vehicleBtn:SetPos(330, 260)
-        vehicleBtn:SetSize(150, 25)
-        vehicleBtn:SetText("Vehicle Wave")
-        vehicleBtn.DoClick = function()
-            RunConsoleCommand("vjgm_test_vehicle_wave")
+        if VJGM.WaveTemplates then
+            local templates = VJGM.WaveTemplates.GetAll()
+            local yPos = 0
+            
+            for _, template in ipairs(templates) do
+                local templateCard = vgui.Create("DPanel", templateScroll)
+                templateCard:SetPos(0, yPos)
+                templateCard:SetSize(templateScroll:GetWide() - 20, 70)
+                templateCard.Paint = function(self, w, h)
+                    draw.RoundedBox(4, 0, 0, w, h, Color(55, 55, 55, 255))
+                    
+                    -- Difficulty color bar
+                    local diffColor = Color(100, 100, 100, 255)
+                    if template.difficulty == "Easy" then
+                        diffColor = Color(100, 200, 100, 255)
+                    elseif template.difficulty == "Medium" then
+                        diffColor = Color(200, 200, 100, 255)
+                    elseif template.difficulty == "Hard" or template.difficulty == "Very Hard" then
+                        diffColor = Color(200, 100, 100, 255)
+                    elseif template.difficulty == "Boss" or template.difficulty == "Endless" then
+                        diffColor = Color(200, 100, 200, 255)
+                    end
+                    draw.RoundedBox(4, 0, 0, 4, h, diffColor)
+                end
+                
+                -- Template name
+                local nameLabel = vgui.Create("DLabel", templateCard)
+                nameLabel:SetPos(10, 5)
+                nameLabel:SetSize(templateCard:GetWide() - 130, 18)
+                nameLabel:SetFont("DermaDefaultBold")
+                nameLabel:SetText(template.name)
+                
+                -- Template description
+                local descLabel = vgui.Create("DLabel", templateCard)
+                descLabel:SetPos(10, 25)
+                descLabel:SetSize(templateCard:GetWide() - 130, 16)
+                descLabel:SetText(template.description)
+                
+                -- Difficulty badge
+                local diffLabel = vgui.Create("DLabel", templateCard)
+                diffLabel:SetPos(10, 45)
+                diffLabel:SetSize(100, 16)
+                diffLabel:SetText("⚡ " .. template.difficulty)
+                diffLabel:SetTextColor(Color(150, 150, 150, 255))
+                
+                -- Spawn button
+                local spawnTemplateBtn = vgui.Create("DButton", templateCard)
+                spawnTemplateBtn:SetPos(templateCard:GetWide() - 115, 10)
+                spawnTemplateBtn:SetSize(105, 50)
+                spawnTemplateBtn:SetText("▶ Spawn Wave")
+                spawnTemplateBtn.DoClick = function()
+                    net.Start("VJGM_SpawnTemplate")
+                    net.WriteString(template.id)
+                    net.WriteString(groupEntry:GetValue())
+                    net.SendToServer()
+                    
+                    -- Switch to Active Waves tab to see the result
+                    timer.Simple(0.5, function()
+                        if IsValid(panel:GetParent()) then
+                            -- Request wave list update
+                            net.Start("VJGM_RequestWaveList")
+                            net.SendToServer()
+                        end
+                    end)
+                end
+                
+                yPos = yPos + 75
+            end
         end
     end
     
@@ -857,6 +911,7 @@ if SERVER then
         util.AddNetworkString("VJGM_RequestWaveList")
         util.AddNetworkString("VJGM_WaveListUpdate")
         util.AddNetworkString("VJGM_SpawnQuickWave")
+        util.AddNetworkString("VJGM_SpawnTemplate")
         util.AddNetworkString("VJGM_CreateRadialSpawns")
         util.AddNetworkString("VJGM_ImportSpawns")
         
@@ -901,6 +956,27 @@ if SERVER then
                 }
                 
                 VJGM.NPCSpawner.StartWave(waveConfig)
+            end
+        end)
+        
+        -- Spawn from template
+        net.Receive("VJGM_SpawnTemplate", function(len, ply)
+            if not ply:IsAdmin() then return end
+            
+            local templateID = net.ReadString()
+            local spawnGroup = net.ReadString()
+            
+            -- Load wave templates
+            include("npc/wave_templates.lua")
+            
+            if VJGM.WaveTemplates then
+                local waveID = VJGM.WaveTemplates.SpawnFromTemplate(templateID, spawnGroup)
+                
+                if waveID then
+                    print("[VJGM] Spawned wave from template: " .. templateID .. " (Wave ID: " .. waveID .. ")")
+                else
+                    ErrorNoHalt("[VJGM] Failed to spawn wave from template: " .. templateID .. "\n")
+                end
             end
         end)
         

@@ -122,14 +122,17 @@ Role-based NPC system with specialized behaviors. **✅ IMPLEMENTED**
 - `VJGM.RoleBasedNPCs.Roles.ASSAULT` - Standard combat role
 
 ### 7. `gui_controller.lua`
-Live GUI control panel for wave management. **✅ IMPLEMENTED**
+Live GUI control panel for wave management. **✅ ENHANCED**
 
 **Features:**
+- Enhanced visual wave cards with progress bars
+- Real-time statistics dashboard
+- Color-coded status indicators
 - Full control panel with 4 tabs:
-  - Active Waves: Monitor and control running waves
-  - Wave Builder: Quick wave creation
-  - Spawn Points: Visual spawn point management
-  - Settings: Quick access to commands
+  - Active Waves: Visual wave cards with progress tracking
+  - Wave Builder: Quick wave creation + template browser
+  - Spawn Points: Visual spawn point management + 3D visualization
+  - Settings: Quick access to commands and visualizer controls
 - Real-time wave monitoring window
 - Manual wave control (start, stop, pause, resume)
 - Client-server networking
@@ -138,6 +141,49 @@ Live GUI control panel for wave management. **✅ IMPLEMENTED**
 **Console Commands:**
 - `vjgm_panel` - Open main control panel
 - `vjgm_monitor` - Open wave monitor window
+
+### 8. `ui_visualizer.lua`
+3D world-space visualization system. **✅ NEW**
+
+**Features:**
+- 3D spawn point markers with beams and ground circles
+- NPC faction indicators with health bars
+- Color-coded faction visualization
+- Distance-based culling for performance
+- Real-time updates
+- Toggle-able visualization modes
+
+**Console Commands:**
+- `vjgm_visualizer_toggle` - Enable/disable all visualization
+- `vjgm_visualizer_spawns` - Toggle spawn point markers
+- `vjgm_visualizer_npcs` - Toggle NPC markers
+- `vjgm_visualizer_request_spawns` - Refresh spawn point data
+
+### 9. `wave_templates.lua`
+Pre-configured wave templates library. **✅ NEW**
+
+**Features:**
+- 10+ ready-to-use wave templates
+- Difficulty-rated templates (Easy to Boss/Endless)
+- Templates for different scenarios:
+  - Light Infantry Wave
+  - Standard Infantry Wave
+  - Progressive 3-Wave Assault
+  - Mixed Role Squad
+  - Defensive Holdout
+  - Elite Squad
+  - Vehicle Assault
+  - Boss Fight
+  - Endless Horde
+  - Sniper Team
+- One-click spawning from UI
+- Customizable spawn groups
+
+**Main Functions:**
+- `VJGM.WaveTemplates.GetAll()` - Get all templates
+- `VJGM.WaveTemplates.GetByID(templateID)` - Get specific template
+- `VJGM.WaveTemplates.GetByDifficulty(difficulty)` - Filter by difficulty
+- `VJGM.WaveTemplates.SpawnFromTemplate(templateID, spawnGroup)` - Spawn from template
 
 ### 8. `testing_tools.lua`
 Comprehensive testing and debugging tools. **✅ NEW**
