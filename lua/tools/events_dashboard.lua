@@ -326,6 +326,35 @@ if CLIENT then
             statValue:Dock(TOP)
             statValue:DockMargin(10, 2, 10, 10)
         end
+        
+        -- Add Event Activity Minimap
+        local minimapSection = vgui.Create("OnyxPanel", scroll)
+        minimapSection:Dock(TOP)
+        minimapSection:SetHeight(300)
+        minimapSection:DockMargin(0, 0, 0, 10)
+        minimapSection:SetBackgroundColor(Onyx.Colors.Background)
+        
+        local minimapLabel = vgui.Create("DLabel", minimapSection)
+        minimapLabel:SetText("Event Activity Map")
+        minimapLabel:SetFont(Onyx.Fonts.Body)
+        minimapLabel:SetTextColor(Onyx.Colors.Text)
+        minimapLabel:Dock(TOP)
+        minimapLabel:DockMargin(10, 10, 10, 5)
+        
+        local minimap = vgui.Create("OnyxMinimap", minimapSection)
+        minimap:Dock(FILL)
+        minimap:DockMargin(10, 5, 10, 10)
+        minimap:SetWorldBounds(Vector(-8192, -8192, 0), Vector(8192, 8192, 0))
+        
+        -- Enable real-time updates
+        minimap.OnAutoUpdate = function(self)
+            VJGM.EventsDashboard.UpdateMinimapMarkers(self)
+        end
+        
+        parent.minimap = minimap
+        
+        -- Populate with initial sample markers
+        VJGM.EventsDashboard.PopulateSampleMarkers(minimap)
     end
     
     --[[
@@ -403,6 +432,88 @@ if CLIENT then
         -- Update logs panel if open
         if IsValid(activeDashboard) and IsValid(activeDashboard.logsPanel) and IsValid(activeDashboard.logsPanel.logsList) then
             activeDashboard.logsPanel.logsList:AddLine(timeStr, eventType, description)
+        end
+    end
+    
+    --[[
+        Populate Sample Markers for Testing
+    ]]--
+    function VJGM.EventsDashboard.PopulateSampleMarkers(minimap)
+        -- Clear existing markers
+        minimap:ClearMarkers()
+        
+        -- Add sample event markers with various types
+        local markerTypes = {
+            {color = Onyx.Colors.Primary, shape = "circle", label = "Event"},
+            {color = Onyx.Colors.Success, shape = "square", label = "NPC"},
+            {color = Onyx.Colors.Warning, shape = "diamond", label = "Alert"},
+            {color = Onyx.Colors.Error, shape = "circle", label = "Danger"},
+        }
+        
+        -- Create a high-density scenario with 100+ markers
+        for i = 1, 120 do
+            local angle = (i / 120) * math.pi * 2
+            local radius = math.random(2000, 6000)
+            local x = math.cos(angle) * radius + math.random(-500, 500)
+            local y = math.sin(angle) * radius + math.random(-500, 500)
+            
+            local markerType = markerTypes[math.random(1, #markerTypes)]
+            local pos = Vector(x, y, 0)
+            
+            minimap:AddMarker(pos, {
+                id = "event_marker_" .. i,
+                color = markerType.color,
+                shape = markerType.shape,
+                label = markerType.label .. " " .. i,
+                size = math.random(6, 12)
+            })
+        end
+        
+        -- Add some clustered markers to test clustering
+        for cluster = 1, 5 do
+            local centerX = math.random(-7000, 7000)
+            local centerY = math.random(-7000, 7000)
+            
+            for j = 1, 15 do
+                local offsetX = math.random(-200, 200)
+                local offsetY = math.random(-200, 200)
+                local pos = Vector(centerX + offsetX, centerY + offsetY, 0)
+                
+                minimap:AddMarker(pos, {
+                    id = "cluster_" .. cluster .. "_" .. j,
+                    color = Onyx.Colors.Accent,
+                    shape = "circle",
+                    label = "C" .. cluster,
+                    size = 8
+                })
+            end
+        end
+    end
+    
+    --[[
+        Update Minimap Markers in Real-time
+    ]]--
+    function VJGM.EventsDashboard.UpdateMinimapMarkers(minimap)
+        -- This would be called periodically to update markers based on actual game state
+        -- For now, we simulate some dynamic updates
+        
+        -- Example: Update a few random markers to show dynamic behavior
+        for i = 1, 5 do
+            local markerId = "event_marker_" .. math.random(1, 120)
+            local marker = minimap:GetMarker(markerId)
+            
+            if marker then
+                -- Slightly adjust position to simulate movement
+                local newPos = Vector(
+                    marker.pos.x + math.random(-50, 50),
+                    marker.pos.y + math.random(-50, 50),
+                    0
+                )
+                
+                minimap:UpdateMarker(markerId, {
+                    pos = newPos
+                })
+            end
         end
     end
     
