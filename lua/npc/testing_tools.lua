@@ -14,6 +14,15 @@ if SERVER then
     VJGM.TestingTools = VJGM.TestingTools or {}
     
     --[[
+        Check if player is authorized (admin)
+        @param ply: Player to check
+        @return boolean: true if authorized
+    ]]--
+    function VJGM.TestingTools.IsAuthorized(ply)
+        return not IsValid(ply) or ply:IsAdmin()
+    end
+    
+    --[[
         Initialize testing tools
     ]]--
     function VJGM.TestingTools.Initialize()
@@ -167,13 +176,13 @@ if SERVER then
     
     -- Wave control commands
     concommand.Add("vjgm_wave_status", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         local waveID = args[1]
         VJGM.TestingTools.PrintWaveStatus(waveID)
     end)
     
     concommand.Add("vjgm_wave_pause", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         local waveID = args[1]
         if waveID and VJGM.NPCSpawner then
             VJGM.NPCSpawner.PauseWave(waveID)
@@ -183,7 +192,7 @@ if SERVER then
     end)
     
     concommand.Add("vjgm_wave_resume", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         local waveID = args[1]
         if waveID and VJGM.NPCSpawner then
             VJGM.NPCSpawner.ResumeWave(waveID)
@@ -193,7 +202,7 @@ if SERVER then
     end)
     
     concommand.Add("vjgm_wave_stop", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         local waveID = args[1]
         if waveID and VJGM.NPCSpawner then
             VJGM.NPCSpawner.StopWave(waveID)
@@ -203,7 +212,7 @@ if SERVER then
     end)
     
     concommand.Add("vjgm_wave_stop_all", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         if VJGM.NPCSpawner then
             local waves = VJGM.NPCSpawner.GetActiveWaves()
             for _, waveID in ipairs(waves) do
@@ -215,23 +224,23 @@ if SERVER then
     
     -- Role NPC commands
     concommand.Add("vjgm_list_roles", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         VJGM.TestingTools.ListRoleNPCs()
     end)
     
     concommand.Add("vjgm_test_squad", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         VJGM.TestingTools.TestRoleSquad()
     end)
     
     -- Vehicle commands
     concommand.Add("vjgm_list_vehicles", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         VJGM.TestingTools.ListVehicles()
     end)
     
     concommand.Add("vjgm_cleanup_vehicles", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         if VJGM.VehicleSupport then
             VJGM.VehicleSupport.CleanupAll()
         end
@@ -239,13 +248,13 @@ if SERVER then
     
     -- Spawn point commands
     concommand.Add("vjgm_list_spawns", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         local groupName = args[1]
         VJGM.TestingTools.ShowSpawnPoints(groupName)
     end)
     
     concommand.Add("vjgm_clear_spawns", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         if VJGM.SpawnPoints then
             local groupName = args[1]
             VJGM.SpawnPoints.Clear(groupName)
@@ -254,7 +263,7 @@ if SERVER then
     
     -- Quick test wave with roles
     concommand.Add("vjgm_test_role_wave", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
         -- Setup spawn points
         local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 300 or Vector(0, 0, 100)
@@ -285,7 +294,7 @@ if SERVER then
     
     -- Test vehicle wave
     concommand.Add("vjgm_test_vehicle_wave", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
         -- Setup spawn points
         local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 500 or Vector(0, 0, 100)
@@ -333,7 +342,7 @@ if SERVER then
     
     -- Help command
     concommand.Add("vjgm_help", function(ply, cmd, args)
-        if IsValid(ply) and not ply:IsAdmin() then return end
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
         print("========== VJGM Testing Commands ==========")
         print("Wave Control:")
         print("  vjgm_wave_status [wave_id] - Show wave status")

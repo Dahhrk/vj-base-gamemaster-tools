@@ -118,6 +118,7 @@ VJGM.Config.RoleBasedNPCs = {
         HealAmount = 25,
         HealRange = 300,
         HealCooldown = 10,
+        HealThreshold = 0.8,  -- Heal allies below 80% health
         DefaultHealth = 100,
     },
     
@@ -180,6 +181,12 @@ VJGM.Config.VehicleSupport = {
     
     -- Auto-assign crew to vehicles
     AutoAssignCrew = true,
+    
+    -- Crew spawn radius around vehicle (units)
+    CrewSpawnRadius = 50,
+    
+    -- Delay before assigning crew to seats (seconds)
+    CrewAssignmentDelay = 0.1,
     
     -- Vehicle patrol settings
     PatrolSpeed = 200,

@@ -270,9 +270,11 @@ if SERVER then
         -- Check cooldown
         if CurTime() < (medic.VJGM_NextHealTime or 0) then return end
         
+        local medicConfig = VJGM.Config.Get("RoleBasedNPCs", "Medic", {})
         local healAmount = medic.VJGM_HealAmount or 25
         local healRange = medic.VJGM_HealRange or 300
         local healCooldown = medic.VJGM_HealCooldown or 10
+        local healThreshold = medicConfig.HealThreshold or 0.8
         
         -- Find injured allies nearby
         local allies = {}
@@ -290,8 +292,8 @@ if SERVER then
                 local maxHealth = npc:GetMaxHealth()
                 local currentHealth = npc:Health()
                 
-                -- Check if ally needs healing (below 80% health)
-                if currentHealth < maxHealth * 0.8 then
+                -- Check if ally needs healing (below threshold)
+                if currentHealth < maxHealth * healThreshold then
                     -- Check if same faction (VJ Base)
                     local isSameFaction = false
                     if npc.IsVJBaseSNPC and npc.VJ_NPC_Class and medicFaction then

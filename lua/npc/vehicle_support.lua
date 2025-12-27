@@ -86,13 +86,15 @@ if SERVER then
         -- Spawn and assign crew if provided
         if crew and autoAssign then
             local crewNPCs = {}
+            local crewRadius = VJGM.Config.Get("VehicleSupport", "CrewSpawnRadius", 50)
+            local assignDelay = VJGM.Config.Get("VehicleSupport", "CrewAssignmentDelay", 0.1)
             
             -- Spawn crew NPCs near vehicle
             for seatName, crewConfig in pairs(crew) do
                 if crewConfig.class then
                     local crewNPC = ents.Create(crewConfig.class)
                     if IsValid(crewNPC) then
-                        crewNPC:SetPos(pos + Vector(math.random(-50, 50), math.random(-50, 50), 0))
+                        crewNPC:SetPos(pos + Vector(math.random(-crewRadius, crewRadius), math.random(-crewRadius, crewRadius), 0))
                         
                         -- VJ Base pre-spawn settings
                         if crewNPC.IsVJBaseSNPC == true and crewConfig.customization and crewConfig.customization.vjbase then
@@ -113,7 +115,7 @@ if SERVER then
                         crewNPCs[seatName] = crewNPC
                         
                         -- Try to enter vehicle (for supported vehicle types)
-                        timer.Simple(0.1, function()
+                        timer.Simple(assignDelay, function()
                             if IsValid(crewNPC) and IsValid(vehicle) then
                                 if vehicle.HandleNPCEntry then
                                     vehicle:HandleNPCEntry(crewNPC)
@@ -210,11 +212,16 @@ if SERVER then
                 end
             else
                 -- Move towards waypoint (for NPCs driving vehicles)
+                -- TODO: Implement vehicle movement for VJ Base NPCs
+                -- This requires vehicle-specific logic depending on the vehicle type
+                -- For scripted vehicles, commands can be sent to the driver NPC
+                -- For simfphys or other vehicle addons, use their specific APIs
                 if vehicle.VJGM_Crew and vehicle.VJGM_Crew.driver then
                     local driver = vehicle.VJGM_Crew.driver
                     if IsValid(driver) and driver.IsVJBaseSNPC then
                         -- VJ Base NPCs can be given movement commands
-                        -- This is simplified - actual implementation depends on vehicle type
+                        -- Note: Actual implementation depends on vehicle addon used
+                        -- This is a placeholder for future vehicle-specific implementations
                     end
                 end
             end
