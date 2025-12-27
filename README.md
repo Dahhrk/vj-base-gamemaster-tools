@@ -11,7 +11,7 @@ Manage mission objectives dynamically with real-time synchronization to all play
 - **Full Management UI**: Add, edit, delete, and control objective visibility
 - **Real-Time Sync**: Changes instantly appear for all players
 - **Player Display**: Clean, minimal objectives panel for players
-- **Permission-Based**: Admin-only access with OpenPermissions support
+- **Permission-Based**: Admin-only access with CPPI support
 
 See [lua/players/README.md](lua/players/README.md) for detailed documentation.
 

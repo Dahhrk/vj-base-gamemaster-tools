@@ -1,6 +1,6 @@
 --[[
     Objectives UI - Client-side objectives management interface
-    Provides an Onyx-powered UI for gamemasters to manage objectives
+    Provides a VGUI-based interface for gamemasters to manage objectives
     
     Compatible with VJ Base Gamemaster Tools
 ]]--

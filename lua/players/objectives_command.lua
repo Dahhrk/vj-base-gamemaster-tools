@@ -7,10 +7,7 @@
 
 if SERVER then
     
-    -- Ensure objectives manager is loaded
-    if not VJGM or not VJGM.Objectives then
-        include("players/objectives_manager.lua")
-    end
+    VJGM = VJGM or {}
     
     --[[
         Handle PlayerSay hook for !objectives command
@@ -19,6 +16,13 @@ if SERVER then
         -- Check if the message is the objectives command
         local lowerText = string.lower(text)
         if lowerText == "!objectives" then
+            -- Ensure objectives manager is loaded
+            if not VJGM.Objectives or not VJGM.Objectives.IsAuthorized then
+                ply:ChatPrint("[VJGM] Objectives system not loaded. Please contact an administrator.")
+                ErrorNoHalt("[VJGM] Objectives manager not loaded! Ensure objectives_manager.lua is loaded first.\n")
+                return ""
+            end
+            
             -- Check authorization
             if not VJGM.Objectives.IsAuthorized(ply) then
                 ply:ChatPrint("[VJGM] You don't have permission to access the Objectives Menu.")

@@ -125,9 +125,9 @@ if CLIENT then
             local statusColor = obj.completed and Color(80, 200, 80) or Color(200, 200, 80)
             draw.RoundedBox(6, 0, 0, 6, h, statusColor)
             
-            -- Completion checkmark
+            -- Completion checkmark (using ASCII check)
             if obj.completed then
-                draw.SimpleText("✓", "DermaLarge", w - 20, h/2, Color(80, 200, 80), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+                draw.SimpleText("[X]", "DermaDefaultBold", w - 25, h/2, Color(80, 200, 80), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
             end
         end
         

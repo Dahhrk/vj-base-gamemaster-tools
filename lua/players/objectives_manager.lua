@@ -34,7 +34,8 @@ if SERVER then
         -- Check if player is admin
         if ply:IsAdmin() then return true end
         
-        -- Check OpenPermissions if available
+        -- Check CPPI (Creative Protection for Prop Improvements) if available
+        -- This can be extended to support other permission systems
         if CPPI and CPPI.GetPermissions then
             local perms = CPPI.GetPermissions(ply)
             if perms and perms.objectives then return true end

@@ -50,7 +50,7 @@ Players will automatically see visible objectives in a panel on the right side o
 
 By default, only server admins can manage objectives. The system checks:
 1. `ply:IsAdmin()` - Standard admin check
-2. OpenPermissions (if available) - Custom permission: `objectives`
+2. CPPI (if available) - Custom permission: `objectives` (can be extended to support other permission systems)
 
 ### Network Messages
 
