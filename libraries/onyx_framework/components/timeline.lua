@@ -35,6 +35,9 @@ if CLIENT then
         self.eventRows = {}
         self.rowHeight = 35
         self.rowSpacing = 5
+        
+        -- Minimum event width for visibility
+        self.minEventWidth = 2
     end
     
     function PANEL:Paint(w, h)
@@ -112,7 +115,7 @@ if CLIENT then
             local endX = (event.endTime / self.maxTime) * w * self.scale
             local width = endX - startX
             
-            if width < 2 then width = 2 end  -- Minimum width for visibility
+            if width < self.minEventWidth then width = self.minEventWidth end
             
             -- Calculate event position with row support
             local row = event.row or 0
@@ -215,6 +218,9 @@ if CLIENT then
         
         local event = self.hoveredEvent
         local mouseX, mouseY = self:LocalToScreen(self:CursorPos())
+        
+        -- Validate event has positive duration
+        if event.endTime <= event.startTime then return end
         
         -- Calculate tooltip dimensions
         surface.SetFont(Onyx.Fonts.Small)

@@ -106,7 +106,7 @@ if CLIENT then
                 local duration = math.random(20, 80)
                 local endTime = math.min(startTime + duration, 200)
                 
-                -- Skip events with invalid duration
+                -- Ensure positive duration before adding
                 if endTime > startTime then
                     local color = colors[(i % #colors) + 1]
                     
