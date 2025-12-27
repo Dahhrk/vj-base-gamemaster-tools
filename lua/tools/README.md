@@ -1,6 +1,8 @@
 # VJGM Gamemaster Tools
 
-Enhanced UI tools powered by the Onyx UI Framework for managing game events, waves, and spawn points.
+Enhanced UI admin tools powered by the Onyx UI Framework for managing spawn points and waves.
+
+These are admin-only tools accessible via console commands, designed for in-game editing and management.
 
 ## Available Tools
 
@@ -53,50 +55,6 @@ vjgm_wave_manager
 VJGM.WaveManager.Open()
 ```
 
-### 3. Dynamic Events Dashboard
-**Command:** `vjgm_events_dashboard`
-
-Complete event orchestration interface with timeline visualization.
-
-**Features:**
-- **Event Timeline:** Visual timeline showing event phases
-  - Drag to jump to specific time
-  - Color-coded event phases
-  - Real-time progress indicator
-  
-- **Environmental Effects:** Trigger atmospheric effects
-  - Fog, Rain, Fire, Explosions, Lightning
-  - One-click activation
-  - Clear all effects option
-  
-- **Wave Triggers:** Quick spawn buttons for different wave types
-  - Light, Standard, Heavy, Boss waves
-  - Instant deployment
-  
-- **Event Modifications:** Real-time adjustments
-  - Difficulty slider (1-10)
-  - Dynamic event parameters
-  
-- **Analytics Panel:** Live event statistics
-  - Active events count
-  - Total NPCs spawned
-  - Player participation
-  - Event duration
-  
-- **Event Logs:** Chronological event history
-  - Time-stamped entries
-  - Event type categorization
-  - Detailed descriptions
-
-**Usage:**
-```lua
--- Open the dashboard
-vjgm_events_dashboard
-
--- Or programmatically
-VJGM.EventsDashboard.Open()
-```
-
 ## Integration with Onyx UI
 
 All tools are built using the Onyx UI Framework for consistent styling and behavior.
@@ -107,7 +65,6 @@ All tools are built using the Onyx UI Framework for consistent styling and behav
 - **OnyxSlider:** Smooth value sliders with live updates
 - **OnyxTabs:** Tabbed interface system
 - **OnyxMinimap:** Interactive world map visualization
-- **OnyxTimeline:** Event phase timeline
 
 ## Network Messages
 
@@ -122,11 +79,6 @@ All tools are built using the Onyx UI Framework for consistent styling and behav
 - `VJGM_RestartWave` - Restart wave (Client → Server)
 - `VJGM_RequestWaveData` - Request wave data (Client → Server)
 - `VJGM_WaveData` - Send wave data (Server → Client)
-
-### Events Dashboard
-- `VJGM_TriggerEffect` - Trigger environmental effect (Client → Server)
-- `VJGM_TriggerWave` - Trigger wave spawn (Client → Server)
-- `VJGM_SetDifficulty` - Adjust difficulty (Client → Server)
 
 ## Admin Access
 
@@ -148,18 +100,6 @@ local pos = Vector(100, 200, 0)
 VJGM.SpawnPointEditor.AddSpawnPoint(pos)
 ```
 
-### Triggering Events
-```lua
--- Trigger an environmental effect
-VJGM.EventsDashboard.TriggerEffect("fog")
-
--- Trigger a wave
-VJGM.EventsDashboard.TriggerWave("Heavy Wave")
-
--- Set difficulty
-VJGM.EventsDashboard.SetDifficulty(8)
-```
-
 ### Custom Wave Control
 ```lua
 -- Toggle a specific wave
@@ -171,6 +111,10 @@ VJGM.WaveManager.StopWave("wave_123")
 -- Restart a wave
 VJGM.WaveManager.RestartWave("wave_123")
 ```
+
+## Related Systems
+
+For event orchestration and dynamic event management, see the Events Dashboard in `lua/events/events_dashboard.lua`.
 
 ## Future Features
 
