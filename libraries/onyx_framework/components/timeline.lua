@@ -221,23 +221,23 @@ if CLIENT then
         
         -- Calculate tooltip dimensions
         surface.SetFont(Onyx.Fonts.Small)
-        local nameWidth = surface.GetTextSize(event.name or "Event")
+        local nameWidth, _ = surface.GetTextSize(event.name or "Event")
         
         local duration = event.endTime - event.startTime
         local durationText = string.format("Duration: %.1fs", duration)
-        local durationWidth = surface.GetTextSize(durationText)
+        local durationWidth, _ = surface.GetTextSize(durationText)
         
         local startText = string.format("Start: %.1fs", event.startTime)
-        local startWidth = surface.GetTextSize(startText)
+        local startWidth, _ = surface.GetTextSize(startText)
         
         local endText = string.format("End: %.1fs", event.endTime)
-        local endWidth = surface.GetTextSize(endText)
+        local endWidth, _ = surface.GetTextSize(endText)
         
         local tooltipWidth = math.max(nameWidth, durationWidth, startWidth, endWidth) + 20
         local tooltipHeight = 80
         
         if event.description then
-            local descWidth = surface.GetTextSize(event.description)
+            local descWidth, _ = surface.GetTextSize(event.description)
             tooltipWidth = math.max(tooltipWidth, descWidth + 20)
             tooltipHeight = tooltipHeight + 20
         end

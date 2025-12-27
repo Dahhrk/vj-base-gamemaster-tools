@@ -105,15 +105,19 @@ if CLIENT then
                 local startTime = math.random(0, 150)
                 local duration = math.random(20, 80)
                 local endTime = math.min(startTime + duration, 200)
-                local color = colors[(i % #colors) + 1]
                 
-                timeline:AddEvent(
-                    "Event " .. i,
-                    startTime,
-                    endTime,
-                    color,
-                    string.format("Random event %d: %ds duration", i, duration)
-                )
+                -- Skip events with invalid duration
+                if endTime > startTime then
+                    local color = colors[(i % #colors) + 1]
+                    
+                    timeline:AddEvent(
+                        "Event " .. i,
+                        startTime,
+                        endTime,
+                        color,
+                        string.format("Random event %d: %ds duration", i, endTime - startTime)
+                    )
+                end
             end
         end)
         
