@@ -78,31 +78,124 @@ NPC customization system compatible with VJ Base.
 ## Future Expansion Modules (Placeholders)
 
 ### 5. `vehicle_support.lua`
-Placeholder for vehicle spawning with crew assignment.
+Vehicle spawning system with crew assignment. **✅ IMPLEMENTED**
 
-**Planned Features:**
-- Vehicle spawn waves
-- Crew assignment (pilots, gunners)
-- Vehicle customization
-- Patrol routes
+**Features:**
+- Vehicle spawn waves integrated with NPC waves
+- Automatic crew assignment to seats (driver, gunner, passengers)
+- Vehicle customization (health, color, skin)
+- Basic patrol route system
+- VJ Base compatible crew NPCs
+
+**Main Functions:**
+- `VJGM.VehicleSupport.SpawnVehicleWithCrew(vehicleClass, pos, angle, crew)` - Spawn vehicle with crew
+- `VJGM.VehicleSupport.AddVehicleWave(waveConfig, vehicleWave)` - Add vehicle wave
+- `VJGM.VehicleSupport.SetPatrolPath(vehicle, waypoints)` - Set patrol path
+- `VJGM.VehicleSupport.GetSpawnedVehicles()` - List spawned vehicles
+- `VJGM.VehicleSupport.CleanupAll()` - Remove all spawned vehicles
 
 ### 6. `role_based_npcs.lua`
-Placeholder for role-based NPC behaviors.
+Role-based NPC system with specialized behaviors. **✅ IMPLEMENTED**
 
-**Planned Features:**
-- Medic NPCs (healing)
-- Engineer NPCs (repairs)
-- Squad leaders (buffs)
-- Role-specific AI behaviors
+**Features:**
+- 7 NPC roles: Medic, Engineer, Squad Leader, Sniper, Scout, Heavy, Assault
+- Medic NPCs automatically heal injured allies
+- Squad Leader NPCs buff nearby allies with damage/accuracy boosts
+- Role-specific attributes (health, speed, sight distance)
+- Squad creation with balanced role distribution
+- VJ Base compatible
+
+**Main Functions:**
+- `VJGM.RoleBasedNPCs.AssignRole(npc, role, roleConfig)` - Assign role to NPC
+- `VJGM.RoleBasedNPCs.CreateSquad(squadConfig)` - Create balanced squad
+- `VJGM.RoleBasedNPCs.GetNPCsByRole(role)` - Get NPCs by role
+- `VJGM.RoleBasedNPCs.MedicBehavior(medic)` - Medic healing behavior
+- `VJGM.RoleBasedNPCs.SquadLeaderBehavior(leader)` - Squad leader buff behavior
+
+**Available Roles:**
+- `VJGM.RoleBasedNPCs.Roles.MEDIC` - Heals injured allies
+- `VJGM.RoleBasedNPCs.Roles.ENGINEER` - Repairs vehicles/structures (placeholder)
+- `VJGM.RoleBasedNPCs.Roles.SQUAD_LEADER` - Buffs nearby allies
+- `VJGM.RoleBasedNPCs.Roles.SNIPER` - Enhanced sight distance and accuracy
+- `VJGM.RoleBasedNPCs.Roles.SCOUT` - Increased movement speed
+- `VJGM.RoleBasedNPCs.Roles.HEAVY` - Increased health
+- `VJGM.RoleBasedNPCs.Roles.ASSAULT` - Standard combat role
 
 ### 7. `gui_controller.lua`
-Placeholder for live GUI control panel.
+Live GUI control panel for wave management. **✅ IMPLEMENTED**
 
-**Planned Features:**
-- Real-time wave monitoring
-- Visual wave builder
-- Spawn point editor
-- Multi-gamemaster support
+**Features:**
+- Full control panel with 4 tabs:
+  - Active Waves: Monitor and control running waves
+  - Wave Builder: Quick wave creation
+  - Spawn Points: Visual spawn point management
+  - Settings: Quick access to commands
+- Real-time wave monitoring window
+- Manual wave control (start, stop, pause, resume)
+- Client-server networking
+- Admin-only access
+
+**Console Commands:**
+- `vjgm_panel` - Open main control panel
+- `vjgm_monitor` - Open wave monitor window
+
+### 8. `testing_tools.lua`
+Comprehensive testing and debugging tools. **✅ NEW**
+
+**Features:**
+- Wave management commands (pause, resume, stop, status)
+- Role NPC testing and monitoring
+- Vehicle management
+- Spawn point management
+- Quick test waves
+- Help system
+
+**Console Commands:**
+- `vjgm_help` - Show all available commands
+- `vjgm_wave_status [wave_id]` - Show wave status
+- `vjgm_wave_pause <wave_id>` - Pause a wave
+- `vjgm_wave_resume <wave_id>` - Resume a wave
+- `vjgm_wave_stop <wave_id>` - Stop a wave
+- `vjgm_wave_stop_all` - Stop all waves
+- `vjgm_list_roles` - List role-based NPCs
+- `vjgm_test_squad` - Test squad creation
+- `vjgm_test_role_wave` - Spawn test wave with roles
+- `vjgm_list_vehicles` - List spawned vehicles
+- `vjgm_cleanup_vehicles` - Remove all vehicles
+- `vjgm_test_vehicle_wave` - Spawn test vehicle wave
+- `vjgm_list_spawns [group]` - List spawn points
+- `vjgm_clear_spawns [group]` - Clear spawn points
+
+## New Features
+
+### Dynamic Wave Scaling
+Automatically adjust wave difficulty based on player count and add randomization.
+
+**Features:**
+- Player count-based difficulty scaling
+- NPC count and health scaling
+- Wave composition randomization
+- Fully configurable through `config/spawner_config.lua`
+
+**Configuration:**
+```lua
+VJGM.Config.WaveScaling = {
+    Enabled = true,
+    ScaleByPlayerCount = true,
+    DifficultyPerPlayer = 0.15,  -- 15% harder per player
+    MaxDifficultyMultiplier = 3.0,
+    RandomizationFactor = 0.15  -- ±15% randomization
+}
+```
+
+### Wave Control
+New pause/resume functionality for active waves.
+
+**Functions:**
+- `VJGM.NPCSpawner.PauseWave(waveID)` - Pause a wave
+- `VJGM.NPCSpawner.ResumeWave(waveID)` - Resume a paused wave
+
+## Future Expansion Modules (Placeholders)
 
 ## Usage Examples
 
@@ -113,6 +206,94 @@ See `examples.lua` for comprehensive usage examples including:
 - Advanced customization
 - Event-triggered waves
 - Wave management
+
+### Role-Based Squad Example
+```lua
+-- Create a role-based squad configuration
+local squadConfig = {
+    roles = {
+        { role = VJGM.RoleBasedNPCs.Roles.SQUAD_LEADER, count = 1 },
+        { role = VJGM.RoleBasedNPCs.Roles.ASSAULT, count = 4 },
+        { role = VJGM.RoleBasedNPCs.Roles.MEDIC, count = 1 },
+        { role = VJGM.RoleBasedNPCs.Roles.HEAVY, count = 1 }
+    },
+    baseClass = "npc_vj_clone_trooper",
+    faction = "VJ_FACTION_PLAYER",
+    squadName = "Alpha Squad"
+}
+
+-- Generate NPC configurations
+local npcConfigs = VJGM.RoleBasedNPCs.CreateSquad(squadConfig)
+
+-- Use in wave configuration
+local waveConfig = {
+    waves = {
+        {
+            npcs = npcConfigs,
+            spawnPointGroup = "frontline",
+            interval = 0
+        }
+    },
+    defaultInterval = 30,
+    cleanupOnComplete = false
+}
+
+VJGM.NPCSpawner.StartWave(waveConfig)
+```
+
+### Vehicle Wave Example
+```lua
+-- Setup spawn points
+VJGM.SpawnPoints.RegisterInRadius("vehicle_spawns", Vector(0, 0, 100), 400, 4)
+
+-- Create vehicle wave configuration
+local vehicleWave = {
+    vehicles = {
+        {
+            class = "prop_vehicle_jeep",
+            count = 2,
+            crew = {
+                driver = {
+                    class = "npc_vj_clone_trooper",
+                    customization = {
+                        health = 120,
+                        vjbase = {
+                            faction = "VJ_FACTION_PLAYER",
+                            squad = "vehicle_crew"
+                        }
+                    }
+                }
+            },
+            customization = {
+                health = 1000,
+                color = Color(100, 100, 100)
+            }
+        }
+    },
+    spawnPointGroup = "vehicle_spawns",
+    interval = 60
+}
+
+-- Add to wave config
+local waveConfig = VJGM.WaveConfig.CreateExample()
+VJGM.VehicleSupport.AddVehicleWave(waveConfig, vehicleWave)
+VJGM.NPCSpawner.StartWave(waveConfig)
+```
+
+### Manual Role Assignment Example
+```lua
+-- Spawn an NPC
+local medic = ents.Create("npc_vj_clone_trooper")
+medic:SetPos(Vector(0, 0, 100))
+medic:Spawn()
+
+-- Assign medic role
+VJGM.RoleBasedNPCs.AssignRole(medic, VJGM.RoleBasedNPCs.Roles.MEDIC, {
+    healAmount = 30,
+    healRange = 400,
+    healCooldown = 8
+})
+```
 
 ## Quick Start
 
@@ -197,10 +378,36 @@ The spawner is fully compatible with VJ Base NPCs. VJ Base-specific settings inc
 
 ## Console Commands (for testing)
 
+**Basic Testing:**
+- `vjgm_help` - Show all available commands
 - `vjgm_test_basic` - Test basic wave
 - `vjgm_test_clonewars` - Test Clone Wars preset
-- `vjgm_stop_all` - Stop all active waves
-- `vjgm_list_waves` - List active waves
+- `vjgm_test_role_wave` - Test role-based squad wave
+- `vjgm_test_vehicle_wave` - Test vehicle wave
+
+**Wave Management:**
+- `vjgm_wave_status [wave_id]` - Show wave status (all waves if no ID)
+- `vjgm_wave_pause <wave_id>` - Pause a wave
+- `vjgm_wave_resume <wave_id>` - Resume a paused wave
+- `vjgm_wave_stop <wave_id>` - Stop a specific wave
+- `vjgm_wave_stop_all` - Stop all active waves (also `vjgm_stop_all`)
+- `vjgm_list_waves` - List all active waves
+
+**Role-Based NPCs:**
+- `vjgm_list_roles` - List all role-based NPCs
+- `vjgm_test_squad` - Test squad creation
+
+**Vehicles:**
+- `vjgm_list_vehicles` - List all spawned vehicles
+- `vjgm_cleanup_vehicles` - Remove all spawned vehicles
+
+**Spawn Points:**
+- `vjgm_list_spawns [group]` - List spawn points (all groups if no name)
+- `vjgm_clear_spawns [group]` - Clear spawn points (all if no name)
+
+**GUI Access:**
+- `vjgm_panel` - Open main control panel (admin only)
+- `vjgm_monitor` - Open wave monitor window (admin only)
 
 ## Notes
 
