@@ -21,6 +21,27 @@ if CLIENT then
         -- Scrolling
         self.scrollOffset = 0
         self.scrollable = true
+        
+        -- Listen for theme changes
+        self.themeHook = "OnyxTimeline_ThemeChange_" .. tostring(self)
+        hook.Add("OnyxThemeChanged", self.themeHook, function()
+            if IsValid(self) then
+                self:OnThemeChanged()
+            else
+                hook.Remove("OnyxThemeChanged", self.themeHook)
+            end
+        end)
+    end
+    
+    function PANEL:OnThemeChanged()
+        -- Update colors to match new theme
+        self.backgroundColor = Onyx.Colors.Background
+        self.timelineColor = Onyx.Colors.Border
+        self.currentTimeColor = Onyx.Colors.Primary
+    end
+    
+    function PANEL:OnRemove()
+        hook.Remove("OnyxThemeChanged", self.themeHook)
     end
     
     function PANEL:Paint(w, h)

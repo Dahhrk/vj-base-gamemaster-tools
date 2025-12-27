@@ -20,6 +20,28 @@ if CLIENT then
         self.isHovered = false
         self.isPressing = false
         self.pressScale = 1.0
+        
+        -- Listen for theme changes
+        self.themeHook = "OnyxButton_ThemeChange_" .. tostring(self)
+        hook.Add("OnyxThemeChanged", self.themeHook, function()
+            if IsValid(self) then
+                self:OnThemeChanged()
+            else
+                hook.Remove("OnyxThemeChanged", self.themeHook)
+            end
+        end)
+    end
+    
+    function PANEL:OnThemeChanged()
+        -- Update colors to match new theme
+        self.textColor = Onyx.Colors.Text
+        self.backgroundColor = Onyx.Colors.Primary
+        self.hoverColor = Onyx.Colors.Secondary
+        self.currentColor = self.backgroundColor
+    end
+    
+    function PANEL:OnRemove()
+        hook.Remove("OnyxThemeChanged", self.themeHook)
     end
     
     function PANEL:Paint(w, h)

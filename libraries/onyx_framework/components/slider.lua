@@ -22,6 +22,28 @@ if CLIENT then
         self.suffix = ""
         self.decimals = 0
         self.font = Onyx.Fonts.Small
+        
+        -- Listen for theme changes
+        self.themeHook = "OnyxSlider_ThemeChange_" .. tostring(self)
+        hook.Add("OnyxThemeChanged", self.themeHook, function()
+            if IsValid(self) then
+                self:OnThemeChanged()
+            else
+                hook.Remove("OnyxThemeChanged", self.themeHook)
+            end
+        end)
+    end
+    
+    function PANEL:OnThemeChanged()
+        -- Update colors to match new theme
+        self.trackColor = Onyx.Colors.Border
+        self.fillColor = Onyx.Colors.Primary
+        self.thumbColor = Onyx.Colors.Secondary
+        self.textColor = Onyx.Colors.Text
+    end
+    
+    function PANEL:OnRemove()
+        hook.Remove("OnyxThemeChanged", self.themeHook)
     end
     
     function PANEL:Paint(w, h)

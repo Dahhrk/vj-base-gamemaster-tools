@@ -45,6 +45,13 @@ The project now includes the **Onyx UI Framework** - a modern, component-based U
 - **OnyxTabs**: Organized tab system for multi-section interfaces
 - **OnyxMinimap**: Interactive world map visualization
 - **OnyxTimeline**: Event phase timeline with drag-to-seek
+- **OnyxThemeToggle**: Light/Dark theme toggle button
+
+### Onyx Theme System
+- **Light/Dark Themes**: Toggle between modern light and dark color schemes
+- **Real-time Updates**: All components update instantly when theme changes
+- **Persistent Preferences**: Theme choice is saved across sessions
+- **Seamless Integration**: Works with all Onyx-powered tools
 
 ## Quick Start
 
@@ -54,6 +61,7 @@ vjgm_panel              - Open main control panel
 vjgm_spawn_editor       - Open Spawn Point Editor (Onyx UI)
 vjgm_wave_manager       - Open Wave Manager (Onyx UI)
 vjgm_events_dashboard   - Open Dynamic Events Dashboard (Onyx UI)
+vjgm_theme_demo         - Open Onyx Theme Demo (showcase theme system)
 ```
 
 ### Basic Usage

@@ -18,7 +18,7 @@ if CLIENT then
         self.dragging = false
         self.dragStart = nil
         self.backgroundColor = Onyx.Colors.Background
-        self.gridColor = Color(60, 60, 65, 100)
+        self.gridColor = Onyx.Colors.GridColor or Color(60, 60, 65, 100)
         self.showGrid = true
         self.gridSize = 512
         
@@ -28,6 +28,26 @@ if CLIENT then
         -- Auto-update timer
         self.lastUpdate = 0
         self.updateInterval = 0.1
+        
+        -- Listen for theme changes
+        self.themeHook = "OnyxMinimap_ThemeChange_" .. tostring(self)
+        hook.Add("OnyxThemeChanged", self.themeHook, function()
+            if IsValid(self) then
+                self:OnThemeChanged()
+            else
+                hook.Remove("OnyxThemeChanged", self.themeHook)
+            end
+        end)
+    end
+    
+    function PANEL:OnThemeChanged()
+        -- Update colors to match new theme
+        self.backgroundColor = Onyx.Colors.Background
+        self.gridColor = Onyx.Colors.GridColor or Color(60, 60, 65, 100)
+    end
+    
+    function PANEL:OnRemove()
+        hook.Remove("OnyxThemeChanged", self.themeHook)
     end
     
     function PANEL:Paint(w, h)
