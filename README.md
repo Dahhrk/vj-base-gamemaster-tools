@@ -35,7 +35,7 @@ The project now includes the **Onyx UI Framework** - a modern, component-based U
 - Environmental effects controls (Fog, Rain, Fire, Explosions, Lightning)
 - Quick wave trigger buttons
 - Real-time difficulty adjustment
-- Live analytics panel
+- Live analytics panel with interactive minimap
 - Event logging system
 
 ### Onyx UI Components
@@ -88,11 +88,11 @@ vj-base-gamemaster-tools/
 │   │   ├── ai_behaviors.lua     # AI behavior system
 │   │   ├── gui_controller.lua   # Main GUI controller (now with Onyx integration)
 │   │   └── config/              # Configuration files
-│   ├── tools/                   # Enhanced gamemaster tools
+│   ├── tools/                   # Enhanced admin tools (STools-style)
 │   │   ├── spawn_point_editor.lua    # Onyx-powered spawn editor
-│   │   ├── wave_manager.lua          # Onyx-powered wave manager
+│   │   └── wave_manager.lua          # Onyx-powered wave manager
+│   ├── events/                  # Event orchestration systems
 │   │   └── events_dashboard.lua      # Onyx-powered events dashboard
-│   ├── events/                  # Event management (future)
 │   └── players/                 # Player interaction (future)
 ```
 
