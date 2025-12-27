@@ -92,8 +92,9 @@ if SERVER then
             npc.VJGM_NextHealTime = 0
             
             -- Start medic behavior timer
+            local behaviorInterval = medicConfig.BehaviorCheckInterval or 2
             local timerName = "VJGM_Medic_" .. npc:EntIndex()
-            timer.Create(timerName, 2, 0, function()
+            timer.Create(timerName, behaviorInterval, 0, function()
                 if IsValid(npc) and npc:Health() > 0 then
                     VJGM.RoleBasedNPCs.MedicBehavior(npc)
                 else
@@ -322,10 +323,14 @@ if SERVER then
             targetAlly:SetHealth(newHealth)
             
             -- Visual effect (simple particle effect)
+            local medicConfig = VJGM.Config.Get("RoleBasedNPCs", "Medic", {})
+            local effectHeight = medicConfig.HealEffectHeight or 40
+            local effectName = medicConfig.HealEffectName or "GlassImpact"
+            
             local effectdata = EffectData()
-            effectdata:SetOrigin(targetAlly:GetPos() + Vector(0, 0, 40))
+            effectdata:SetOrigin(targetAlly:GetPos() + Vector(0, 0, effectHeight))
             effectdata:SetScale(1)
-            util.Effect("GlassImpact", effectdata)
+            util.Effect(effectName, effectdata)
             
             -- Set cooldown
             medic.VJGM_NextHealTime = CurTime() + healCooldown

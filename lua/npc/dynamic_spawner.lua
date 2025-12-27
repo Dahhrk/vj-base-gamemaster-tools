@@ -463,7 +463,8 @@ if SERVER then
             
             -- Apply randomization
             if randomFactor > 0 then
-                local randomMod = math.random() * randomFactor * 2 - randomFactor
+                -- Generate random value between -randomFactor and +randomFactor
+                local randomMod = (math.random() - 0.5) * 2 * randomFactor
                 scaledCount = math.max(1, math.floor(scaledCount * (1 + randomMod)))
             end
             

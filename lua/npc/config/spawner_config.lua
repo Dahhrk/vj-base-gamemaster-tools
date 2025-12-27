@@ -119,6 +119,9 @@ VJGM.Config.RoleBasedNPCs = {
         HealRange = 300,
         HealCooldown = 10,
         HealThreshold = 0.8,  -- Heal allies below 80% health
+        HealEffectHeight = 40,  -- Height offset for visual effect
+        HealEffectName = "GlassImpact",  -- Effect to play when healing
+        BehaviorCheckInterval = 2,  -- How often to check for healing (seconds)
         DefaultHealth = 100,
     },
     
@@ -236,6 +239,18 @@ VJGM.Config.WaveScaling = {
     
     -- Randomization percentage (0.0 - 1.0)
     RandomizationFactor = 0.15,
+}
+
+-- Testing Tools configuration
+VJGM.Config.TestingTools = {
+    -- Enable testing tools
+    Enabled = true,
+    
+    -- Default spawn distance offset from player
+    SpawnDistanceOffset = 300,
+    
+    -- Admin only access to testing commands
+    AdminOnly = true,
 }
 
 return VJGM.Config

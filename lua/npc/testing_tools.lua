@@ -266,7 +266,8 @@ if SERVER then
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
         -- Setup spawn points
-        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 300 or Vector(0, 0, 100)
+        local spawnOffset = VJGM.Config.Get("TestingTools", "SpawnDistanceOffset", 300)
+        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * spawnOffset or Vector(0, 0, 100)
         if VJGM.SpawnPoints then
             VJGM.SpawnPoints.RegisterInRadius("test_roles", spawnPos, 400, 6)
         end
@@ -297,7 +298,8 @@ if SERVER then
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
         -- Setup spawn points
-        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 500 or Vector(0, 0, 100)
+        local spawnOffset = VJGM.Config.Get("TestingTools", "SpawnDistanceOffset", 300)
+        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * (spawnOffset * 1.67) or Vector(0, 0, 100)
         if VJGM.SpawnPoints then
             VJGM.SpawnPoints.RegisterInRadius("test_vehicles", spawnPos, 200, 3)
         end
