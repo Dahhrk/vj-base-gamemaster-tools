@@ -16,20 +16,41 @@ if CLIENT then
     Onyx.Version = "1.0.0"
     Onyx.Components = Onyx.Components or {}
     
-    -- Color scheme
-    Onyx.Colors = {
-        Primary = Color(70, 130, 180),      -- Steel Blue
-        Secondary = Color(100, 149, 237),    -- Cornflower Blue
-        Background = Color(35, 35, 40),      -- Dark Gray
-        Surface = Color(45, 45, 50),         -- Medium Gray
-        Border = Color(60, 60, 65),          -- Light Gray
-        Text = Color(240, 240, 240),         -- Off White
-        TextDim = Color(180, 180, 180),      -- Dim Text
-        Success = Color(76, 175, 80),        -- Green
-        Warning = Color(255, 152, 0),        -- Orange
-        Error = Color(244, 67, 54),          -- Red
-        Accent = Color(156, 39, 176),        -- Purple
+    -- Theme definitions
+    Onyx.Themes = {
+        dark = {
+            Primary = Color(70, 130, 180),      -- Steel Blue
+            Secondary = Color(100, 149, 237),    -- Cornflower Blue
+            Background = Color(35, 35, 40),      -- Dark Gray
+            Surface = Color(45, 45, 50),         -- Medium Gray
+            Border = Color(60, 60, 65),          -- Light Gray
+            Text = Color(240, 240, 240),         -- Off White
+            TextDim = Color(180, 180, 180),      -- Dim Text
+            Success = Color(76, 175, 80),        -- Green
+            Warning = Color(255, 152, 0),        -- Orange
+            Error = Color(244, 67, 54),          -- Red
+            Accent = Color(156, 39, 176),        -- Purple
+        },
+        light = {
+            Primary = Color(66, 133, 244),       -- Google Blue
+            Secondary = Color(52, 168, 83),      -- Google Green
+            Background = Color(248, 249, 250),   -- Light Gray
+            Surface = Color(255, 255, 255),      -- White
+            Border = Color(218, 220, 224),       -- Border Gray
+            Text = Color(32, 33, 36),            -- Almost Black
+            TextDim = Color(95, 99, 104),        -- Dim Gray
+            Success = Color(52, 168, 83),        -- Green
+            Warning = Color(251, 188, 4),        -- Yellow
+            Error = Color(217, 48, 37),          -- Red
+            Accent = Color(142, 36, 170),        -- Purple
+        }
     }
+    
+    -- Current theme (default to dark)
+    Onyx.CurrentTheme = "dark"
+    
+    -- Active color scheme (points to current theme)
+    Onyx.Colors = table.Copy(Onyx.Themes.dark)
     
     -- Font definitions
     Onyx.Fonts = {
@@ -80,6 +101,7 @@ if CLIENT then
             "tabs.lua",
             "minimap.lua",
             "timeline.lua",
+            "theme_toggle.lua",
         }
         
         for _, component in ipairs(components) do
@@ -126,9 +148,50 @@ if CLIENT then
         return from + (to - from) * speed
     end
     
+    -- Theme management functions
+    function Onyx.SetTheme(themeName)
+        if not Onyx.Themes[themeName] then
+            print("[Onyx] Warning: Theme '" .. themeName .. "' not found. Using default 'dark' theme.")
+            themeName = "dark"
+        end
+        
+        Onyx.CurrentTheme = themeName
+        
+        -- Update all colors
+        for key, value in pairs(Onyx.Themes[themeName]) do
+            Onyx.Colors[key] = Color(value.r, value.g, value.b, value.a or 255)
+        end
+        
+        -- Save theme preference
+        cookie.Set("onyx_theme", themeName)
+        
+        -- Notify all components to refresh
+        hook.Run("OnyxThemeChanged", themeName)
+        
+        print("[Onyx] Theme changed to: " .. themeName)
+    end
+    
+    function Onyx.GetTheme()
+        return Onyx.CurrentTheme
+    end
+    
+    function Onyx.ToggleTheme()
+        local newTheme = Onyx.CurrentTheme == "dark" and "light" or "dark"
+        Onyx.SetTheme(newTheme)
+    end
+    
+    function Onyx.LoadThemePreference()
+        local savedTheme = cookie.GetString("onyx_theme", "dark")
+        if Onyx.Themes[savedTheme] then
+            Onyx.SetTheme(savedTheme)
+        end
+    end
+    
     -- Auto-initialize on load
     hook.Add("Initialize", "Onyx_Initialize", function()
         Onyx.Initialize()
+        -- Load saved theme preference
+        Onyx.LoadThemePreference()
     end)
     
 end

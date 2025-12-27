@@ -24,6 +24,28 @@ if CLIENT then
         self.contentArea:Dock(FILL)
         self.contentArea:DockMargin(0, 0, 0, 0)
         self.contentArea.Paint = function() end
+        
+        -- Listen for theme changes
+        self.themeHook = "OnyxTabs_ThemeChange_" .. tostring(self)
+        hook.Add("OnyxThemeChanged", self.themeHook, function()
+            if IsValid(self) then
+                self:OnThemeChanged()
+            else
+                hook.Remove("OnyxThemeChanged", self.themeHook)
+            end
+        end)
+    end
+    
+    function PANEL:OnThemeChanged()
+        -- Tab buttons will update themselves via their own hooks
+        -- Just need to update active tab highlighting
+        if self.activeTab and IsValid(self.activeTab.button) then
+            self.activeTab.button:SetBackgroundColor(Onyx.Colors.Primary)
+        end
+    end
+    
+    function PANEL:OnRemove()
+        hook.Remove("OnyxThemeChanged", self.themeHook)
     end
     
     function PANEL:AddTab(name, icon, content)

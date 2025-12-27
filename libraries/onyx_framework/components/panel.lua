@@ -16,6 +16,26 @@ if CLIENT then
         self.shadow = true
         self.shadowAlpha = 0
         self.targetShadowAlpha = 100
+        
+        -- Listen for theme changes
+        self.themeHook = "OnyxPanel_ThemeChange_" .. tostring(self)
+        hook.Add("OnyxThemeChanged", self.themeHook, function()
+            if IsValid(self) then
+                self:OnThemeChanged()
+            else
+                hook.Remove("OnyxThemeChanged", self.themeHook)
+            end
+        end)
+    end
+    
+    function PANEL:OnThemeChanged()
+        -- Update colors to match new theme
+        self.backgroundColor = Onyx.Colors.Surface
+        self.borderColor = Onyx.Colors.Border
+    end
+    
+    function PANEL:OnRemove()
+        hook.Remove("OnyxThemeChanged", self.themeHook)
     end
     
     function PANEL:Paint(w, h)

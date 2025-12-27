@@ -101,10 +101,24 @@ timeline:AddEvent("Boss Fight", 240, 360, Onyx.Colors.Error)
 timeline:SetCurrentTime(60)
 ```
 
-## Color Scheme
+### OnyxThemeToggle
+Theme toggle button for switching between light and dark themes.
 
 ```lua
-Onyx.Colors = {
+local themeToggle = vgui.Create("OnyxThemeToggle")
+themeToggle:SetSize(30, 30)
+-- Click to toggle between light and dark themes
+```
+
+## Theme System
+
+Onyx UI Framework supports light and dark themes with real-time switching.
+
+### Available Themes
+
+**Dark Theme (default)**
+```lua
+Onyx.Themes.dark = {
     Primary = Color(70, 130, 180),      -- Steel Blue
     Secondary = Color(100, 149, 237),    -- Cornflower Blue
     Background = Color(35, 35, 40),      -- Dark Gray
@@ -116,6 +130,65 @@ Onyx.Colors = {
     Warning = Color(255, 152, 0),        -- Orange
     Error = Color(244, 67, 54),          -- Red
     Accent = Color(156, 39, 176),        -- Purple
+}
+```
+
+**Light Theme**
+```lua
+Onyx.Themes.light = {
+    Primary = Color(66, 133, 244),       -- Google Blue
+    Secondary = Color(52, 168, 83),      -- Google Green
+    Background = Color(248, 249, 250),   -- Light Gray
+    Surface = Color(255, 255, 255),      -- White
+    Border = Color(218, 220, 224),       -- Border Gray
+    Text = Color(32, 33, 36),            -- Almost Black
+    TextDim = Color(95, 99, 104),        -- Dim Gray
+    Success = Color(52, 168, 83),        -- Green
+    Warning = Color(251, 188, 4),        -- Yellow
+    Error = Color(217, 48, 37),          -- Red
+    Accent = Color(142, 36, 170),        -- Purple
+}
+```
+
+### Theme Functions
+
+```lua
+-- Set a specific theme
+Onyx.SetTheme("light")  -- or "dark"
+
+-- Get current theme name
+local currentTheme = Onyx.GetTheme()
+
+-- Toggle between light and dark
+Onyx.ToggleTheme()
+
+-- Listen for theme changes
+hook.Add("OnyxThemeChanged", "MyHook", function(themeName)
+    print("Theme changed to: " .. themeName)
+end)
+```
+
+### Theme Persistence
+
+Theme preferences are automatically saved using browser cookies and will persist across sessions.
+
+## Color Scheme
+
+The active color scheme is always available through `Onyx.Colors` and automatically updates when the theme changes:
+
+```lua
+Onyx.Colors = {
+    Primary = ...,
+    Secondary = ...,
+    Background = ...,
+    Surface = ...,
+    Border = ...,
+    Text = ...,
+    TextDim = ...,
+    Success = ...,
+    Warning = ...,
+    Error = ...,
+    Accent = ...
 }
 ```
 
@@ -137,6 +210,7 @@ The Onyx UI Framework is automatically initialized when included in your addon. 
 1. Include the framework in your addon
 2. Use Onyx components in your UI code
 3. Customize colors and styling as needed
+4. Add a theme toggle button for user preference
 
 ## Examples
 
@@ -144,6 +218,13 @@ See the integration examples in:
 - `lua/tools/spawn_point_editor.lua` - Spawn Point Editor with minimap
 - `lua/tools/wave_manager.lua` - Wave Manager with tabs
 - `lua/tools/events_dashboard.lua` - Dynamic Events Dashboard with timeline
+- `lua/tools/onyx_theme_demo.lua` - Theme demo tool (run `vjgm_theme_demo`)
+
+## Console Commands
+
+```
+vjgm_theme_demo    - Open the Onyx Theme Demo tool
+```
 
 ## Version
 
