@@ -227,6 +227,29 @@ timeline:AddEvent("Event", 0, 100, color, "Description")
 - Export timeline as image
 - Timeline markers and annotations
 
+## Responsive Behavior
+
+### Automatic Resizing
+The OnyxTimeline component is fully responsive and adapts to container size changes:
+
+- **Width Adaptation**: Events scale proportionally when timeline width changes
+- **Height Adaptation**: Timeline uses relative positioning based on panel height
+- **Dynamic Updates**: Paint method recalculates positions on every frame
+- **Screen Size Independence**: Works on any screen resolution
+
+### Testing Responsiveness
+The component has been tested at various sizes:
+- Minimum: 400x100 pixels
+- Typical: 800x150 pixels  
+- Large: 1200x200 pixels
+- All sizes maintain proper event visualization and interaction
+
+### Best Practices
+- Set minimum height of 100px for single-row timelines
+- Add 40px height for each additional row of overlapping events
+- Use DockMargin for proper spacing in containers
+- Consider wrapping in scrollable panel for very tall timelines
+
 ## Troubleshooting
 
 ### Events Not Showing
