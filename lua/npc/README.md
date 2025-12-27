@@ -145,6 +145,7 @@ Comprehensive testing and debugging tools. **✅ NEW**
 **Features:**
 - Wave management commands (pause, resume, stop, status)
 - Role NPC testing and monitoring
+- AI behavior testing
 - Vehicle management
 - Spawn point management
 - Quick test waves
@@ -160,11 +161,42 @@ Comprehensive testing and debugging tools. **✅ NEW**
 - `vjgm_list_roles` - List role-based NPCs
 - `vjgm_test_squad` - Test squad creation
 - `vjgm_test_role_wave` - Spawn test wave with roles
+- `vjgm_list_ai_npcs` - List AI-enabled NPCs
+- `vjgm_test_ai_cover` - Test cover-seeking behavior
+- `vjgm_test_ai_target` - Test target prioritization
+- `vjgm_test_ai_states` - Test combat states
+- `vjgm_test_ai_comm` - Test group communication
+- `vjgm_test_ai_full` - Test all AI features
 - `vjgm_list_vehicles` - List spawned vehicles
 - `vjgm_cleanup_vehicles` - Remove all vehicles
 - `vjgm_test_vehicle_wave` - Spawn test vehicle wave
 - `vjgm_list_spawns [group]` - List spawn points
 - `vjgm_clear_spawns [group]` - Clear spawn points
+
+### 9. `ai_behaviors.lua`
+Advanced AI behavior system for NPCs. **✅ NEW**
+
+**Features:**
+- Context-aware cover-seeking behavior
+- Intelligent target prioritization
+- Dynamic combat states (aggressive, defensive, retreat, suppressed)
+- Group communication and coordination
+- Expanded weapon logic and ammo management
+- VJ Base compatible
+- Minimal override approach (opt-in per NPC)
+
+**Main Functions:**
+- `VJGM.AIBehaviors.EnableForNPC(npc, options)` - Enable AI behaviors for an NPC
+- `VJGM.AIBehaviors.GetAINPCs()` - Get all AI-enabled NPCs
+
+**AI Features:**
+1. **Cover-Seeking**: NPCs seek cover when under fire or at low health
+2. **Target Prioritization**: Smart target selection based on threat, distance, and health
+3. **Combat States**: Dynamic states (aggressive, defensive, retreat, suppressed)
+4. **Group Communication**: Squad coordination and information sharing
+5. **Weapon Logic**: Ammo management, reload timing, fire discipline
+
+See `AI_BEHAVIORS_README.md` for complete documentation and `ai_examples.lua` for usage examples.
 
 ## New Features
 
@@ -295,6 +327,48 @@ VJGM.RoleBasedNPCs.AssignRole(medic, VJGM.RoleBasedNPCs.Roles.MEDIC, {
 })
 ```
 
+### AI-Enhanced NPC Example
+```lua
+-- Register spawn points
+VJGM.SpawnPoints.RegisterInRadius("ai_squad", Vector(0, 0, 0), 400, 6)
+
+-- Create wave with AI behaviors
+local waveConfig = {
+    waves = {
+        {
+            npcs = {
+                {
+                    class = "npc_vj_clone_trooper",
+                    count = 5,
+                    customization = {
+                        health = 120,
+                        weapons = {"weapon_vj_dc15s"},
+                        vjbase = {
+                            faction = "VJ_FACTION_PLAYER",
+                            squad = "ai_alpha"
+                        }
+                    },
+                    -- Enable AI behaviors
+                    aiOptions = {
+                        coverSeeking = true,     -- Seek cover when under fire
+                        targetPriority = true,   -- Smart target selection
+                        combatStates = true,     -- Dynamic combat states
+                        groupComm = true,        -- Squad communication
+                        weaponLogic = true       -- Weapon management
+                    }
+                }
+            },
+            spawnPointGroup = "ai_squad",
+            interval = 0
+        }
+    },
+    defaultInterval = 30,
+    cleanupOnComplete = false
+}
+
+VJGM.NPCSpawner.StartWave(waveConfig)
+```
+
 ## Quick Start
 
 ### 1. Load Required Modules
@@ -384,6 +458,11 @@ The spawner is fully compatible with VJ Base NPCs. VJ Base-specific settings inc
 - `vjgm_test_clonewars` - Test Clone Wars preset
 - `vjgm_test_role_wave` - Test role-based squad wave
 - `vjgm_test_vehicle_wave` - Test vehicle wave
+- `vjgm_test_ai_cover` - Test AI cover-seeking
+- `vjgm_test_ai_target` - Test AI target prioritization
+- `vjgm_test_ai_states` - Test AI combat states
+- `vjgm_test_ai_comm` - Test AI group communication
+- `vjgm_test_ai_full` - Test all AI features
 
 **Wave Management:**
 - `vjgm_wave_status [wave_id]` - Show wave status (all waves if no ID)
@@ -396,6 +475,9 @@ The spawner is fully compatible with VJ Base NPCs. VJ Base-specific settings inc
 **Role-Based NPCs:**
 - `vjgm_list_roles` - List all role-based NPCs
 - `vjgm_test_squad` - Test squad creation
+
+**AI Behaviors:**
+- `vjgm_list_ai_npcs` - List all AI-enabled NPCs
 
 **Vehicles:**
 - `vjgm_list_vehicles` - List all spawned vehicles

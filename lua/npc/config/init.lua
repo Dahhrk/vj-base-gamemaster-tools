@@ -15,6 +15,7 @@ local configPath = "npc/config/"
 if SERVER then
     include(configPath .. "spawner_config.lua")
     include(configPath .. "wave_presets.lua")
+    include(configPath .. "ai_config.lua")
     
     print("[VJGM] Configuration loaded successfully")
 else
