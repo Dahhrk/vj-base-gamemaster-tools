@@ -7,6 +7,10 @@
     - Sliders for spawn radius configuration
     - Dropdowns for group management
     - Real-time syncing with backend via net messages
+    
+    NOTE: This tool integrates with the existing VJGM.SpawnPoints system.
+    The add spawn point functionality is fully implemented.
+    Delete functionality requires additional server-side implementation.
 ]]--
 
 if CLIENT then
@@ -147,12 +151,20 @@ if CLIENT then
         deleteButton:Dock(TOP)
         deleteButton:SetHeight(40)
         deleteButton:DockMargin(10, 5, 10, 5)
-        deleteButton:SetButtonText("Delete Selected Spawn Point")
+        deleteButton:SetButtonText("Delete Nearest Spawn Point")
         deleteButton:SetBackgroundColor(Onyx.Colors.Error)
         deleteButton:SetHoverColor(Color(255, 100, 100))
         deleteButton.DoClick = function()
             -- TODO: Implement deletion of nearest spawn point
-            chat.AddText(Color(255, 200, 100), "[VJGM] ", Color(255, 255, 255), "Delete functionality coming soon")
+            -- Requires integration with existing spawn point system
+            -- Example:
+            -- local ply = LocalPlayer()
+            -- local trace = ply:GetEyeTrace()
+            -- if trace.Hit then
+            --     VJGM.SpawnPointEditor.DeleteNearestSpawnPoint(trace.HitPos)
+            -- end
+            
+            chat.AddText(Color(255, 200, 100), "[VJGM] ", Color(255, 255, 255), "Delete functionality requires server-side integration")
         end
         
         -- Refresh button

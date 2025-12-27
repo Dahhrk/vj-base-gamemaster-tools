@@ -7,6 +7,10 @@
     - Wave spawn triggers
     - Real-time analytics panel
     - Event logs display
+    
+    NOTE: This is a UI framework that requires integration with your event system.
+    The server-side network message handlers contain example integration code.
+    Implement environmental effects, wave spawning, and difficulty scaling based on your game's needs.
 ]]--
 
 if CLIENT then
@@ -422,24 +426,45 @@ if SERVER then
     net.Receive("VJGM_TriggerEffect", function(len, ply)
         if not ply:IsAdmin() then return end
         local effectName = net.ReadString()
-        -- TODO: Implement environmental effects
-        print("[VJGM] " .. ply:Nick() .. " triggered effect: " .. effectName)
+        
+        -- TODO: Implement environmental effects based on your game's needs
+        -- Example implementations:
+        -- if effectName == "fog" then
+        --     -- Set fog parameters for all clients
+        -- elseif effectName == "rain" then
+        --     -- Trigger rain effect
+        -- elseif effectName == "fire" then
+        --     -- Create fire entities
+        -- end
+        
+        print("[VJGM Events] " .. ply:Nick() .. " triggered effect: " .. effectName)
     end)
     
     -- Handle trigger wave
     net.Receive("VJGM_TriggerWave", function(len, ply)
         if not ply:IsAdmin() then return end
         local waveName = net.ReadString()
-        -- TODO: Implement wave triggering
-        print("[VJGM] " .. ply:Nick() .. " triggered wave: " .. waveName)
+        
+        -- TODO: Integrate with wave template system
+        -- Example integration:
+        -- if VJGM and VJGM.WaveTemplates and VJGM.WaveTemplates.SpawnFromName then
+        --     VJGM.WaveTemplates.SpawnFromName(waveName)
+        -- end
+        
+        print("[VJGM Events] " .. ply:Nick() .. " triggered wave: " .. waveName)
     end)
     
     -- Handle set difficulty
     net.Receive("VJGM_SetDifficulty", function(len, ply)
         if not ply:IsAdmin() then return end
         local difficulty = net.ReadInt(8)
-        -- TODO: Implement difficulty adjustment
-        print("[VJGM] " .. ply:Nick() .. " set difficulty to: " .. difficulty)
+        
+        -- TODO: Implement difficulty scaling
+        -- Example implementation:
+        -- VJGM.Config.Set("Difficulty", difficulty)
+        -- -- Adjust NPC health, damage, spawn rates, etc.
+        
+        print("[VJGM Events] " .. ply:Nick() .. " set difficulty to: " .. difficulty)
     end)
     
 end

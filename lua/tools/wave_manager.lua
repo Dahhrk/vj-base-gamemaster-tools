@@ -7,6 +7,10 @@
     - Real-time stats with progress bars
     - NPC count displays
     - Wave state management
+    
+    NOTE: This is a UI framework that requires integration with your wave spawning system.
+    The server-side network message handlers contain example integration code.
+    Connect these handlers to your existing VJGM.DynamicSpawner or similar system.
 ]]--
 
 if CLIENT then
@@ -444,21 +448,42 @@ if SERVER then
     net.Receive("VJGM_ToggleWave", function(len, ply)
         if not ply:IsAdmin() then return end
         local waveID = net.ReadString()
-        -- TODO: Implement wave toggle logic
+        
+        -- TODO: Integrate with existing wave system
+        -- Example integration:
+        -- if VJGM and VJGM.DynamicSpawner and VJGM.DynamicSpawner.ToggleWave then
+        --     VJGM.DynamicSpawner.ToggleWave(waveID)
+        -- end
+        
+        print("[VJGM Wave Manager] " .. ply:Nick() .. " toggled wave: " .. waveID)
     end)
     
     -- Handle stop wave
     net.Receive("VJGM_StopWave", function(len, ply)
         if not ply:IsAdmin() then return end
         local waveID = net.ReadString()
-        -- TODO: Implement wave stop logic
+        
+        -- TODO: Integrate with existing wave system
+        -- Example integration:
+        -- if VJGM and VJGM.DynamicSpawner and VJGM.DynamicSpawner.StopWave then
+        --     VJGM.DynamicSpawner.StopWave(waveID)
+        -- end
+        
+        print("[VJGM Wave Manager] " .. ply:Nick() .. " stopped wave: " .. waveID)
     end)
     
     -- Handle restart wave
     net.Receive("VJGM_RestartWave", function(len, ply)
         if not ply:IsAdmin() then return end
         local waveID = net.ReadString()
-        -- TODO: Implement wave restart logic
+        
+        -- TODO: Integrate with existing wave system
+        -- Example integration:
+        -- if VJGM and VJGM.DynamicSpawner and VJGM.DynamicSpawner.RestartWave then
+        --     VJGM.DynamicSpawner.RestartWave(waveID)
+        -- end
+        
+        print("[VJGM Wave Manager] " .. ply:Nick() .. " restarted wave: " .. waveID)
     end)
     
     -- Handle wave data request
@@ -466,7 +491,12 @@ if SERVER then
         if not ply:IsAdmin() then return end
         
         local waveData = {}
-        -- TODO: Collect wave data from existing system
+        
+        -- TODO: Collect wave data from existing wave system
+        -- Example integration:
+        -- if VJGM and VJGM.DynamicSpawner and VJGM.DynamicSpawner.GetActiveWaves then
+        --     waveData = VJGM.DynamicSpawner.GetActiveWaves()
+        -- end
         
         net.Start("VJGM_WaveData")
         net.WriteTable(waveData)
