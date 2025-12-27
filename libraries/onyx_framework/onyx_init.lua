@@ -30,6 +30,7 @@ if CLIENT then
             Warning = Color(255, 152, 0),        -- Orange
             Error = Color(244, 67, 54),          -- Red
             Accent = Color(156, 39, 176),        -- Purple
+            GridColor = Color(60, 60, 65, 100),  -- Grid overlay for minimap
         },
         light = {
             Primary = Color(66, 133, 244),       -- Google Blue
@@ -43,6 +44,7 @@ if CLIENT then
             Warning = Color(251, 188, 4),        -- Yellow
             Error = Color(217, 48, 37),          -- Red
             Accent = Color(142, 36, 170),        -- Purple
+            GridColor = Color(200, 200, 200, 100), -- Grid overlay for minimap
         }
     }
     
@@ -157,9 +159,19 @@ if CLIENT then
         
         Onyx.CurrentTheme = themeName
         
-        -- Update all colors
+        -- Update all colors by copying theme values
+        -- Use table.Copy for efficiency instead of creating new Color objects
         for key, value in pairs(Onyx.Themes[themeName]) do
-            Onyx.Colors[key] = Color(value.r, value.g, value.b, value.a or 255)
+            if Onyx.Colors[key] then
+                -- Update existing color object
+                Onyx.Colors[key].r = value.r
+                Onyx.Colors[key].g = value.g
+                Onyx.Colors[key].b = value.b
+                Onyx.Colors[key].a = value.a or 255
+            else
+                -- Create new color object if it doesn't exist
+                Onyx.Colors[key] = Color(value.r, value.g, value.b, value.a or 255)
+            end
         end
         
         -- Save theme preference
@@ -182,8 +194,11 @@ if CLIENT then
     
     function Onyx.LoadThemePreference()
         local savedTheme = cookie.GetString("onyx_theme", "dark")
-        if Onyx.Themes[savedTheme] then
+        -- Validate saved theme exists, fallback to dark if invalid
+        if savedTheme and savedTheme ~= "" and Onyx.Themes[savedTheme] then
             Onyx.SetTheme(savedTheme)
+        else
+            Onyx.SetTheme("dark")
         end
     end
     

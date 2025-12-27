@@ -18,7 +18,7 @@ if CLIENT then
         self.dragging = false
         self.dragStart = nil
         self.backgroundColor = Onyx.Colors.Background
-        self.gridColor = Color(60, 60, 65, 100)
+        self.gridColor = Onyx.Colors.GridColor or Color(60, 60, 65, 100)
         self.showGrid = true
         self.gridSize = 512
         
@@ -43,12 +43,7 @@ if CLIENT then
     function PANEL:OnThemeChanged()
         -- Update colors to match new theme
         self.backgroundColor = Onyx.Colors.Background
-        -- Update grid color based on theme
-        if Onyx.CurrentTheme == "light" then
-            self.gridColor = Color(200, 200, 200, 100)
-        else
-            self.gridColor = Color(60, 60, 65, 100)
-        end
+        self.gridColor = Onyx.Colors.GridColor or Color(60, 60, 65, 100)
     end
     
     function PANEL:OnRemove()

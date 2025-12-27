@@ -11,9 +11,9 @@ if CLIENT then
         self:SetText("")
         self.cornerRadius = 4
         
-        -- Icon materials (we'll use text symbols for simplicity)
-        self.darkIcon = "☾"  -- Moon
-        self.lightIcon = "☼"  -- Sun
+        -- Icon symbols (Unicode characters for theme representation)
+        self.darkIcon = "☾"  -- Moon (shown when in light theme - click to go dark)
+        self.lightIcon = "☼"  -- Sun (shown when in dark theme - click to go light)
         
         -- Update appearance based on current theme
         self:UpdateAppearance()
@@ -31,6 +31,9 @@ if CLIENT then
     
     function PANEL:UpdateAppearance()
         local isDark = Onyx.CurrentTheme == "dark"
+        -- Show opposite icon to indicate what clicking will do
+        -- In dark theme, show sun (☼) to indicate "switch to light"
+        -- In light theme, show moon (☾) to indicate "switch to dark"
         self.currentIcon = isDark and self.lightIcon or self.darkIcon
         self.backgroundColor = Onyx.Colors.Surface
         self.hoverColor = Onyx.Colors.Primary
