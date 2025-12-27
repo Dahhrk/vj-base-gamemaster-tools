@@ -154,14 +154,17 @@ if CLIENT then
                 }
                 
                 local screenX, screenY = self:WorldToScreen(marker.pos, w, h)
+                local radiusSquared = self.clusterRadius * self.clusterRadius
                 
                 -- Find nearby markers to cluster
                 for j, otherMarker in ipairs(self.markers) do
                     if i ~= j and not processed[j] then
                         local otherScreenX, otherScreenY = self:WorldToScreen(otherMarker.pos, w, h)
-                        local distance = math.sqrt((screenX - otherScreenX)^2 + (screenY - otherScreenY)^2)
+                        local deltaX = screenX - otherScreenX
+                        local deltaY = screenY - otherScreenY
+                        local distanceSquared = deltaX * deltaX + deltaY * deltaY
                         
-                        if distance < self.clusterRadius then
+                        if distanceSquared < radiusSquared then
                             table.insert(cluster.markers, otherMarker)
                             table.insert(cluster.indices, j)
                             processed[j] = true

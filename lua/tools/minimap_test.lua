@@ -17,6 +17,10 @@ if CLIENT then
     VJGM = VJGM or {}
     VJGM.MinimapTest = VJGM.MinimapTest or {}
     
+    -- Configuration
+    local DEFAULT_MARKER_COUNT = 150
+    local CLUSTER_MARKER_COUNT = 20
+    
     local testWindow = nil
     
     --[[
@@ -79,7 +83,7 @@ if CLIENT then
         VJGM.MinimapTest.CreateControlPanel(rightPanel, minimap)
         
         -- Populate with test markers
-        VJGM.MinimapTest.PopulateTestMarkers(minimap, 150)
+        VJGM.MinimapTest.PopulateTestMarkers(minimap, DEFAULT_MARKER_COUNT)
         
         -- Enable click to add markers
         minimap.OnMapClicked = function(self, worldPos)
@@ -251,11 +255,11 @@ if CLIENT then
         addClusterBtn:Dock(TOP)
         addClusterBtn:SetHeight(35)
         addClusterBtn:DockMargin(10, 5, 10, 10)
-        addClusterBtn:SetButtonText("Add Cluster (20 markers)")
+        addClusterBtn:SetButtonText("Add Cluster (" .. CLUSTER_MARKER_COUNT .. " markers)")
         addClusterBtn:SetBackgroundColor(Onyx.Colors.Warning)
         addClusterBtn.DoClick = function()
             VJGM.MinimapTest.AddMarkerCluster(minimap)
-            chat.AddText(Color(255, 200, 100), "[Test] ", Color(255, 255, 255), "Added cluster of 20 markers")
+            chat.AddText(Color(255, 200, 100), "[Test] ", Color(255, 255, 255), "Added cluster of " .. CLUSTER_MARKER_COUNT .. " markers")
         end
     end
     
@@ -299,7 +303,7 @@ if CLIENT then
         local centerX = math.random(-6000, 6000)
         local centerY = math.random(-6000, 6000)
         
-        for i = 1, 20 do
+        for i = 1, CLUSTER_MARKER_COUNT do
             local offsetX = math.random(-150, 150)
             local offsetY = math.random(-150, 150)
             
@@ -315,6 +319,10 @@ if CLIENT then
     
     -- Console command to open test window
     concommand.Add("vjgm_minimap_test", function()
+        if not LocalPlayer():IsAdmin() then
+            chat.AddText(Color(255, 100, 100), "[VJGM] ", Color(255, 255, 255), "Minimap test tool requires admin access")
+            return
+        end
         VJGM.MinimapTest.Open()
     end)
     

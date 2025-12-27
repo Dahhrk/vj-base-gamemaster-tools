@@ -27,6 +27,11 @@ if CLIENT then
     local eventLogs = {}
     local currentEventTime = 0
     
+    -- Configuration for sample data
+    local SAMPLE_MARKER_COUNT = 120
+    local SAMPLE_CLUSTER_COUNT = 5
+    local SAMPLE_CLUSTER_SIZE = 15
+    
     --[[
         Open the Events Dashboard
     ]]--
@@ -451,8 +456,8 @@ if CLIENT then
         }
         
         -- Create a high-density scenario with 100+ markers
-        for i = 1, 120 do
-            local angle = (i / 120) * math.pi * 2
+        for i = 1, SAMPLE_MARKER_COUNT do
+            local angle = (i / SAMPLE_MARKER_COUNT) * math.pi * 2
             local radius = math.random(2000, 6000)
             local x = math.cos(angle) * radius + math.random(-500, 500)
             local y = math.sin(angle) * radius + math.random(-500, 500)
@@ -470,11 +475,11 @@ if CLIENT then
         end
         
         -- Add some clustered markers to test clustering
-        for cluster = 1, 5 do
+        for cluster = 1, SAMPLE_CLUSTER_COUNT do
             local centerX = math.random(-7000, 7000)
             local centerY = math.random(-7000, 7000)
             
-            for j = 1, 15 do
+            for j = 1, SAMPLE_CLUSTER_SIZE do
                 local offsetX = math.random(-200, 200)
                 local offsetY = math.random(-200, 200)
                 local pos = Vector(centerX + offsetX, centerY + offsetY, 0)
@@ -499,7 +504,7 @@ if CLIENT then
         
         -- Example: Update a few random markers to show dynamic behavior
         for i = 1, 5 do
-            local markerId = "event_marker_" .. math.random(1, 120)
+            local markerId = "event_marker_" .. math.random(1, SAMPLE_MARKER_COUNT)
             local marker = minimap:GetMarker(markerId)
             
             if marker then
