@@ -122,8 +122,11 @@ if SERVER then
         local currentWave = waves[waveIndex]
         print(prefix .. " Spawning wave " .. waveIndex .. " of " .. #waves .. " for " .. waveID)
         
+        -- Apply wave scaling
+        local scaledWave = VJGM.NPCSpawner.ApplyWaveScaling(currentWave)
+        
         -- Spawn NPCs for this wave
-        VJGM.NPCSpawner.SpawnWaveNPCs(waveID, currentWave)
+        VJGM.NPCSpawner.SpawnWaveNPCs(waveID, scaledWave)
         
         -- Schedule next wave if there are more
         if waveIndex < #waves then
@@ -163,7 +166,7 @@ if SERVER then
             return
         end
         
-        -- Spawn each NPC group
+        -- Spawn NPCs if present
         for _, npcGroup in ipairs(waveData.npcs or {}) do
             local npcClass = npcGroup.class or defaultNPCClass
             local count = npcGroup.count or 1
@@ -198,6 +201,11 @@ if SERVER then
                         VJGM.NPCCustomizer.Apply(npc, customization)
                     end
                     
+                    -- Apply role if specified (VJ Base compatible)
+                    if npcGroup.role and VJGM.RoleBasedNPCs then
+                        VJGM.RoleBasedNPCs.AssignRole(npc, npcGroup.role, npcGroup.roleConfig or {})
+                    end
+                    
                     -- Track spawned NPC
                     table.insert(activeWave.spawnedNPCs, npc)
                     
@@ -209,7 +217,56 @@ if SERVER then
             end
         end
         
-        print(prefix .. " Spawned " .. #(waveData.npcs or {}) .. " NPC groups for " .. waveID)
+        -- Spawn vehicles if present and VehicleSupport is available
+        if waveData.vehicles and VJGM.VehicleSupport then
+            for _, vehicleGroup in ipairs(waveData.vehicles) do
+                local vehicleClass = vehicleGroup.class
+                local count = vehicleGroup.count or 1
+                local crew = vehicleGroup.crew
+                local customization = vehicleGroup.customization or {}
+                
+                for i = 1, count do
+                    -- Select spawn point
+                    local spawnPoint = spawnPoints[math.random(1, #spawnPoints)]
+                    
+                    -- Spawn vehicle with crew
+                    local vehicle = VJGM.VehicleSupport.SpawnVehicleWithCrew(
+                        vehicleClass,
+                        spawnPoint.pos,
+                        spawnPoint.angle,
+                        crew
+                    )
+                    
+                    if IsValid(vehicle) then
+                        -- Apply vehicle customization
+                        if customization.health then
+                            vehicle:SetMaxHealth(customization.health)
+                            vehicle:SetHealth(customization.health)
+                        end
+                        
+                        if customization.color then
+                            vehicle:SetColor(customization.color)
+                        end
+                        
+                        if customization.skin then
+                            vehicle:SetSkin(customization.skin)
+                        end
+                        
+                        -- Track spawned vehicle
+                        table.insert(activeWave.spawnedNPCs, vehicle)
+                        
+                        -- Cleanup on death/remove
+                        vehicle:CallOnRemove(cleanupPrefix .. waveID .. "_vehicle", function()
+                            table.RemoveByValue(activeWave.spawnedNPCs, vehicle)
+                        end)
+                    end
+                end
+            end
+        end
+        
+        local npcCount = #(waveData.npcs or {})
+        local vehicleCount = waveData.vehicles and #waveData.vehicles or 0
+        print(prefix .. " Spawned " .. npcCount .. " NPC groups and " .. vehicleCount .. " vehicle groups for " .. waveID)
     end
     
     --[[
@@ -307,6 +364,119 @@ if SERVER then
         
         activeWaves[waveID] = nil
         activeWaveCount = activeWaveCount - 1
+    end
+    
+    --[[
+        Pause a wave
+        @param waveID: The wave instance identifier
+    ]]--
+    function VJGM.NPCSpawner.PauseWave(waveID)
+        local prefix = VJGM.Config.Get("Spawner", "ConsolePrefix", "[VJGM]")
+        local timerPrefix = VJGM.Config.Get("Spawner", "TimerPrefix", "VJGM_Wave_")
+        
+        local waveData = activeWaves[waveID]
+        if not waveData then
+            ErrorNoHalt(prefix .. " PauseWave: Wave not found: " .. tostring(waveID) .. "\n")
+            return false
+        end
+        
+        if waveData.isPaused then
+            print(prefix .. " Wave already paused: " .. waveID)
+            return false
+        end
+        
+        waveData.isPaused = true
+        
+        -- Pause timer if it exists
+        local timerName = timerPrefix .. waveID .. "_" .. waveData.currentWaveIndex
+        if timer.Exists(timerName) then
+            timer.Pause(timerName)
+        end
+        
+        print(prefix .. " Paused wave: " .. waveID)
+        return true
+    end
+    
+    --[[
+        Resume a paused wave
+        @param waveID: The wave instance identifier
+    ]]--
+    function VJGM.NPCSpawner.ResumeWave(waveID)
+        local prefix = VJGM.Config.Get("Spawner", "ConsolePrefix", "[VJGM]")
+        local timerPrefix = VJGM.Config.Get("Spawner", "TimerPrefix", "VJGM_Wave_")
+        
+        local waveData = activeWaves[waveID]
+        if not waveData then
+            ErrorNoHalt(prefix .. " ResumeWave: Wave not found: " .. tostring(waveID) .. "\n")
+            return false
+        end
+        
+        if not waveData.isPaused then
+            print(prefix .. " Wave is not paused: " .. waveID)
+            return false
+        end
+        
+        waveData.isPaused = false
+        
+        -- Unpause timer if it exists
+        local timerName = timerPrefix .. waveID .. "_" .. waveData.currentWaveIndex
+        if timer.Exists(timerName) then
+            timer.UnPause(timerName)
+        end
+        
+        print(prefix .. " Resumed wave: " .. waveID)
+        return true
+    end
+    
+    --[[
+        Apply wave scaling based on difficulty settings
+        @param waveData: Wave configuration data
+        @return Scaled wave configuration
+    ]]--
+    function VJGM.NPCSpawner.ApplyWaveScaling(waveData)
+        local scalingEnabled = VJGM.Config.Get("WaveScaling", "Enabled", true)
+        if not scalingEnabled then return waveData end
+        
+        local scaleByPlayer = VJGM.Config.Get("WaveScaling", "ScaleByPlayerCount", true)
+        local difficultyPerPlayer = VJGM.Config.Get("WaveScaling", "DifficultyPerPlayer", 0.15)
+        local maxDifficulty = VJGM.Config.Get("WaveScaling", "MaxDifficultyMultiplier", 3.0)
+        local minPlayers = VJGM.Config.Get("WaveScaling", "MinPlayersForScaling", 1)
+        local randomFactor = VJGM.Config.Get("WaveScaling", "RandomizationFactor", 0.15)
+        
+        local scaledWave = table.Copy(waveData)
+        local difficultyMultiplier = 1.0
+        
+        -- Scale by player count
+        if scaleByPlayer then
+            local playerCount = #player.GetAll()
+            if playerCount >= minPlayers then
+                difficultyMultiplier = 1.0 + ((playerCount - 1) * difficultyPerPlayer)
+                difficultyMultiplier = math.min(difficultyMultiplier, maxDifficulty)
+            end
+        end
+        
+        -- Apply scaling to NPC groups
+        for _, npcGroup in ipairs(scaledWave.npcs or {}) do
+            -- Scale NPC count
+            local baseCount = npcGroup.count or 1
+            local scaledCount = math.floor(baseCount * difficultyMultiplier)
+            
+            -- Apply randomization
+            if randomFactor > 0 then
+                local randomMod = math.random(-randomFactor * 100, randomFactor * 100) / 100
+                scaledCount = math.max(1, math.floor(scaledCount * (1 + randomMod)))
+            end
+            
+            npcGroup.count = scaledCount
+            
+            -- Optionally scale health
+            if npcGroup.customization and npcGroup.customization.health then
+                local baseHealth = npcGroup.customization.health
+                npcGroup.customization.health = math.floor(baseHealth * difficultyMultiplier)
+            end
+        end
+        
+        return scaledWave
     end
     
     --[[
