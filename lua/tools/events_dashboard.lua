@@ -62,7 +62,7 @@ if CLIENT then
         timelinePanel:DockMargin(5, 5, 5, 5)
         
         local timelineLabel = vgui.Create("DLabel", timelinePanel)
-        timelineLabel:SetText("Event Timeline")
+        timelineLabel:SetText("Event Timeline (Use mouse wheel to zoom)")
         timelineLabel:SetFont(Onyx.Fonts.Heading)
         timelineLabel:SetTextColor(Onyx.Colors.Text)
         timelineLabel:Dock(TOP)
@@ -74,13 +74,21 @@ if CLIENT then
         timeline:DockMargin(10, 5, 10, 10)
         timeline:SetMaxTime(600)  -- 10 minutes
         
-        -- Add sample events
-        timeline:AddEvent("Preparation Phase", 0, 60, Onyx.Colors.Primary)
-        timeline:AddEvent("Wave 1", 60, 180, Onyx.Colors.Success)
-        timeline:AddEvent("Intermission", 180, 210, Onyx.Colors.Warning)
-        timeline:AddEvent("Wave 2", 210, 360, Onyx.Colors.Error)
-        timeline:AddEvent("Boss Phase", 360, 540, Onyx.Colors.Accent)
-        timeline:AddEvent("Cleanup", 540, 600, Onyx.Colors.Primary)
+        -- Add sample events with overlapping scenarios and descriptions
+        timeline:AddEvent("Preparation Phase", 0, 60, Onyx.Colors.Primary, "Players gather equipment and prepare defenses")
+        timeline:AddEvent("Early Scout Wave", 30, 90, Onyx.Colors.Warning, "Small scout group probes defenses")
+        timeline:AddEvent("Wave 1 - Light", 60, 180, Onyx.Colors.Success, "First main wave with light units")
+        timeline:AddEvent("Supply Drop", 120, 135, Color(100, 200, 255), "Ammo and health resupply event")
+        timeline:AddEvent("Intermission", 180, 210, Onyx.Colors.Warning, "Brief pause between major waves")
+        timeline:AddEvent("Reinforcement Arrival", 195, 220, Color(255, 200, 100), "Friendly NPCs join the battle")
+        timeline:AddEvent("Wave 2 - Heavy", 210, 360, Onyx.Colors.Error, "Second wave with heavy armored units")
+        timeline:AddEvent("Air Support", 270, 300, Color(150, 150, 255), "Helicopter gunship provides cover")
+        timeline:AddEvent("Environmental Hazard", 330, 370, Color(200, 100, 50), "Fire spreads across the battlefield")
+        timeline:AddEvent("Boss Phase", 360, 540, Onyx.Colors.Accent, "Elite boss unit spawns with minions")
+        timeline:AddEvent("Critical Moment", 450, 480, Color(255, 50, 50), "Boss enters enraged state")
+        timeline:AddEvent("Final Push", 510, 550, Color(255, 255, 100), "Last chance to defeat the boss")
+        timeline:AddEvent("Cleanup", 540, 600, Onyx.Colors.Primary, "Mop up remaining enemies")
+        timeline:AddEvent("Victory Celebration", 570, 600, Color(100, 255, 100), "Players celebrate their victory")
         
         timeline.OnTimelineClicked = function(self, time)
             VJGM.EventsDashboard.SetEventTime(time)
