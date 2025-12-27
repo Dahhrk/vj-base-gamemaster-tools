@@ -1,0 +1,4 @@
+[submodule "libraries/onyx_framework"]
+	path = libraries/onyx_framework
+	url = https://github.com/Dahhrk/vj-base-gamemaster-tools.git
+	branch = main

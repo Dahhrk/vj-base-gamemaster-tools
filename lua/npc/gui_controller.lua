@@ -17,6 +17,16 @@
 
 if CLIENT then
     
+    -- Load Onyx UI Framework
+    local onyxLoaded, onyxError = pcall(function()
+        include("libraries/onyx_framework/onyx_init.lua")
+    end)
+    
+    if not onyxLoaded then
+        print("[VJGM] Warning: Failed to load Onyx UI Framework: " .. tostring(onyxError))
+        print("[VJGM] Falling back to default UI components")
+    end
+    
     -- Load configuration
     include("npc/config/init.lua")
     
@@ -102,6 +112,14 @@ if CLIENT then
         settingsPanel:Dock(FILL)
         VJGM.GUIController.CreateSettingsTab(settingsPanel)
         sheet:AddSheet("Settings", settingsPanel, "icon16/wrench.png")
+        
+        -- Enhanced Tools Tab (Onyx UI)
+        if Onyx then
+            local toolsPanel = vgui.Create("DPanel")
+            toolsPanel:Dock(FILL)
+            VJGM.GUIController.CreateEnhancedToolsTab(toolsPanel)
+            sheet:AddSheet("Enhanced Tools", toolsPanel, "icon16/wand.png")
+        end
     end
     
     --[[
@@ -1059,6 +1077,167 @@ if SERVER then
                 VJGM.GUIController.SendWaveList(ply)
             end
         end
+    end
+    
+    --[[
+        Create Enhanced Tools tab content (Onyx UI powered tools)
+        @param panel: Parent panel
+    ]]--
+    function VJGM.GUIController.CreateEnhancedToolsTab(panel)
+        if not Onyx then
+            local errorLabel = vgui.Create("DLabel", panel)
+            errorLabel:Dock(FILL)
+            errorLabel:SetText("Onyx UI Framework not loaded. Enhanced tools unavailable.")
+            errorLabel:SetContentAlignment(5)
+            return
+        end
+        
+        -- Load the new tools
+        local toolsLoaded = {
+            spawnEditor = pcall(function() include("tools/spawn_point_editor.lua") end),
+            waveManager = pcall(function() include("tools/wave_manager.lua") end),
+            eventsDashboard = pcall(function() include("tools/events_dashboard.lua") end),
+        }
+        
+        -- Title
+        local titleLabel = vgui.Create("DLabel", panel)
+        titleLabel:SetText("Enhanced Gamemaster Tools")
+        titleLabel:SetFont("DermaLarge")
+        titleLabel:Dock(TOP)
+        titleLabel:DockMargin(20, 20, 20, 10)
+        titleLabel:SetContentAlignment(5)
+        
+        -- Description
+        local descLabel = vgui.Create("DLabel", panel)
+        descLabel:SetText("Advanced tools powered by the Onyx UI Framework for enhanced event management")
+        descLabel:Dock(TOP)
+        descLabel:DockMargin(20, 0, 20, 20)
+        descLabel:SetContentAlignment(5)
+        descLabel:SetWrap(true)
+        descLabel:SetAutoStretchVertical(true)
+        
+        -- Tools container
+        local toolsContainer = vgui.Create("DPanel", panel)
+        toolsContainer:Dock(FILL)
+        toolsContainer:DockMargin(20, 0, 20, 20)
+        toolsContainer.Paint = function() end
+        
+        -- Spawn Point Editor Card
+        if toolsLoaded.spawnEditor and VJGM.SpawnPointEditor then
+            local card1 = vgui.Create("DPanel", toolsContainer)
+            card1:Dock(TOP)
+            card1:DockMargin(0, 0, 0, 15)
+            card1:SetHeight(120)
+            card1.Paint = function(self, w, h)
+                draw.RoundedBox(6, 0, 0, w, h, Color(45, 45, 50))
+                draw.RoundedBox(6, 0, 0, 6, h, Color(100, 200, 255))
+            end
+            
+            local card1Title = vgui.Create("DLabel", card1)
+            card1Title:SetText("Spawn Point Editor")
+            card1Title:SetFont("DermaDefaultBold")
+            card1Title:Dock(TOP)
+            card1Title:DockMargin(15, 15, 15, 5)
+            
+            local card1Desc = vgui.Create("DLabel", card1)
+            card1Desc:SetText("Interactive minimap for visualizing and managing spawn points. Click to add, edit groups, and configure spawn radius.")
+            card1Desc:Dock(TOP)
+            card1Desc:DockMargin(15, 0, 15, 10)
+            card1Desc:SetWrap(true)
+            card1Desc:SetAutoStretchVertical(true)
+            
+            local card1Btn = vgui.Create("DButton", card1)
+            card1Btn:SetText("Open Spawn Point Editor")
+            card1Btn:Dock(BOTTOM)
+            card1Btn:DockMargin(15, 5, 15, 15)
+            card1Btn:SetHeight(30)
+            card1Btn.DoClick = function()
+                VJGM.SpawnPointEditor.Open()
+            end
+        end
+        
+        -- Wave Manager Card
+        if toolsLoaded.waveManager and VJGM.WaveManager then
+            local card2 = vgui.Create("DPanel", toolsContainer)
+            card2:Dock(TOP)
+            card2:DockMargin(0, 0, 0, 15)
+            card2:SetHeight(120)
+            card2.Paint = function(self, w, h)
+                draw.RoundedBox(6, 0, 0, w, h, Color(45, 45, 50))
+                draw.RoundedBox(6, 0, 0, 6, h, Color(100, 255, 100))
+            end
+            
+            local card2Title = vgui.Create("DLabel", card2)
+            card2Title:SetText("Wave Manager")
+            card2Title:SetFont("DermaDefaultBold")
+            card2Title:Dock(TOP)
+            card2Title:DockMargin(15, 15, 15, 5)
+            
+            local card2Desc = vgui.Create("DLabel", card2)
+            card2Desc:SetText("Comprehensive wave control with tabs for active waves, templates, and statistics. Real-time monitoring and control.")
+            card2Desc:Dock(TOP)
+            card2Desc:DockMargin(15, 0, 15, 10)
+            card2Desc:SetWrap(true)
+            card2Desc:SetAutoStretchVertical(true)
+            
+            local card2Btn = vgui.Create("DButton", card2)
+            card2Btn:SetText("Open Wave Manager")
+            card2Btn:Dock(BOTTOM)
+            card2Btn:DockMargin(15, 5, 15, 15)
+            card2Btn:SetHeight(30)
+            card2Btn.DoClick = function()
+                VJGM.WaveManager.Open()
+            end
+        end
+        
+        -- Events Dashboard Card
+        if toolsLoaded.eventsDashboard and VJGM.EventsDashboard then
+            local card3 = vgui.Create("DPanel", toolsContainer)
+            card3:Dock(TOP)
+            card3:DockMargin(0, 0, 0, 15)
+            card3:SetHeight(120)
+            card3.Paint = function(self, w, h)
+                draw.RoundedBox(6, 0, 0, w, h, Color(45, 45, 50))
+                draw.RoundedBox(6, 0, 0, 6, h, Color(255, 150, 100))
+            end
+            
+            local card3Title = vgui.Create("DLabel", card3)
+            card3Title:SetText("Dynamic Events Dashboard")
+            card3Title:SetFont("DermaDefaultBold")
+            card3Title:Dock(TOP)
+            card3Title:DockMargin(15, 15, 15, 5)
+            
+            local card3Desc = vgui.Create("DLabel", card3)
+            card3Desc:SetText("Complete event orchestration with timeline visualization, environmental effects, wave triggers, and real-time analytics.")
+            card3Desc:Dock(TOP)
+            card3Desc:DockMargin(15, 0, 15, 10)
+            card3Desc:SetWrap(true)
+            card3Desc:SetAutoStretchVertical(true)
+            
+            local card3Btn = vgui.Create("DButton", card3)
+            card3Btn:SetText("Open Events Dashboard")
+            card3Btn:Dock(BOTTOM)
+            card3Btn:DockMargin(15, 5, 15, 15)
+            card3Btn:SetHeight(30)
+            card3Btn.DoClick = function()
+                VJGM.EventsDashboard.Open()
+            end
+        end
+        
+        -- Info note
+        local notePanel = vgui.Create("DPanel", toolsContainer)
+        notePanel:Dock(BOTTOM)
+        notePanel:SetHeight(60)
+        notePanel.Paint = function(self, w, h)
+            draw.RoundedBox(4, 0, 0, w, h, Color(60, 60, 65))
+        end
+        
+        local noteLabel = vgui.Create("DLabel", notePanel)
+        noteLabel:SetText("Tip: Use console commands for quick access:\nvjgm_spawn_editor | vjgm_wave_manager | vjgm_events_dashboard")
+        noteLabel:Dock(FILL)
+        noteLabel:DockMargin(15, 10, 15, 10)
+        noteLabel:SetWrap(true)
+        noteLabel:SetContentAlignment(5)
     end
     
     -- Setup networking on initialization
