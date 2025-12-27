@@ -511,6 +511,7 @@ if SERVER then
             currentWave = waveData.currentWaveIndex,
             totalWaves = #waveData.config.waves,
             isActive = waveData.isActive,
+            isPaused = waveData.isPaused or false,
             aliveNPCs = #waveData.spawnedNPCs
         }
     end

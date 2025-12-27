@@ -437,7 +437,18 @@ function VJGM.WaveTemplates.SpawnFromTemplate(templateID, spawnGroup)
         local template = VJGM.WaveTemplates.GetByID(templateID)
         
         if not template then
-            ErrorNoHalt("[VJGM] Wave template not found: " .. tostring(templateID) .. "\n")
+            -- Get available template IDs for helpful error message
+            local templates = VJGM.WaveTemplates.GetAll()
+            local availableIDs = {}
+            for _, t in ipairs(templates) do
+                table.insert(availableIDs, t.id)
+            end
+            
+            ErrorNoHalt(string.format(
+                "[VJGM] Wave template not found: %s\nAvailable templates: %s\n",
+                tostring(templateID),
+                table.concat(availableIDs, ", ")
+            ))
             return nil
         end
         

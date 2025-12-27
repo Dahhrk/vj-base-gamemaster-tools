@@ -150,7 +150,7 @@ if CLIENT then
                         -- Draw circle above NPC
                         surface.SetDrawColor(factionColor)
                         local radius = math.max(5, 15 - (dist / maxDist * 10))
-                        surface.DrawCircle(screenPos.x, screenPos.y, radius, factionColor)
+                        VJGM.UIVisualizer.DrawCircle(screenPos.x, screenPos.y, radius, factionColor)
                         
                         -- Draw health bar
                         local healthPercent = npc:Health() / npc:GetMaxHealth()
@@ -227,7 +227,7 @@ if CLIENT then
     --[[
         Helper function for drawing circles
     ]]--
-    function surface.DrawCircle(x, y, radius, color)
+    local function DrawCircle(x, y, radius, color)
         local segmentCount = 32
         local poly = {}
         
@@ -243,6 +243,9 @@ if CLIENT then
         draw.NoTexture()
         surface.DrawPoly(poly)
     end
+    
+    -- Use local function instead of modifying global surface table
+    VJGM.UIVisualizer.DrawCircle = DrawCircle
     
     -- Console commands for visualization control
     concommand.Add("vjgm_visualizer_toggle", function()
@@ -334,5 +337,8 @@ if SERVER then
     hook.Add("Initialize", "VJGM_UIVisualizer_Server_Init", function()
         VJGM.UIVisualizer.SetupNetworking()
     end)
+    
+    -- Call immediately to ensure network strings are registered before use
+    VJGM.UIVisualizer.SetupNetworking()
     
 end

@@ -382,10 +382,13 @@ if CLIENT then
         templateScroll:SetPos(10, 260)
         templateScroll:SetSize(panel:GetWide() - 20, 250)
         
-        -- Load wave templates
-        include("npc/wave_templates.lua")
+        -- Load wave templates with error handling
+        local templatesLoaded, templatesModule = pcall(function()
+            include("npc/wave_templates.lua")
+            return VJGM.WaveTemplates
+        end)
         
-        if VJGM.WaveTemplates then
+        if templatesLoaded and templatesModule then
             local templates = VJGM.WaveTemplates.GetAll()
             local yPos = 0
             
@@ -798,6 +801,7 @@ if CLIENT then
             local totalWaves = net.ReadUInt(8)
             local aliveNPCs = net.ReadUInt(16)
             local isActive = net.ReadBool()
+            local isPaused = net.ReadBool()
             
             table.insert(waves, {
                 id = waveID,
@@ -805,7 +809,7 @@ if CLIENT then
                 total = totalWaves,
                 npcs = aliveNPCs,
                 active = isActive,
-                paused = false  -- TODO: Add paused state to network message
+                paused = isPaused
             })
         end
         
@@ -966,9 +970,7 @@ if SERVER then
             local templateID = net.ReadString()
             local spawnGroup = net.ReadString()
             
-            -- Load wave templates
-            include("npc/wave_templates.lua")
-            
+            -- Wave templates should already be loaded
             if VJGM.WaveTemplates then
                 local waveID = VJGM.WaveTemplates.SpawnFromTemplate(templateID, spawnGroup)
                 
@@ -977,6 +979,8 @@ if SERVER then
                 else
                     ErrorNoHalt("[VJGM] Failed to spawn wave from template: " .. templateID .. "\n")
                 end
+            else
+                ErrorNoHalt("[VJGM] Wave templates system not loaded\n")
             end
         end)
         
@@ -1027,6 +1031,7 @@ if SERVER then
                 net.WriteUInt(status.totalWaves, 8)
                 net.WriteUInt(status.aliveNPCs, 16)
                 net.WriteBool(status.isActive)
+                net.WriteBool(status.isPaused)
             end
         end
         
