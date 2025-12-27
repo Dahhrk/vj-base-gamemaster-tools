@@ -7,8 +7,9 @@
 
 if SERVER then
     
-    -- Load configuration
+    -- Load configuration once
     include("npc/config/init.lua")
+    include("npc/config/ai_test_config.lua")
     
     VJGM = VJGM or {}
     VJGM.TestingTools = VJGM.TestingTools or {}
@@ -367,8 +368,7 @@ if SERVER then
     concommand.Add("vjgm_test_ai_cover", function(ply, cmd, args)
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
-        include("npc/config/ai_test_config.lua")
-        local scenario = VJGM.Config.AITestScenarios.CoverSeekingTest
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.CoverSeekingTest
         
         if not scenario then
             print("Scenario not found")
@@ -392,8 +392,7 @@ if SERVER then
     concommand.Add("vjgm_test_ai_target", function(ply, cmd, args)
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
-        include("npc/config/ai_test_config.lua")
-        local scenario = VJGM.Config.AITestScenarios.TargetPriorityTest
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.TargetPriorityTest
         
         if not scenario then
             print("Scenario not found")
@@ -415,8 +414,7 @@ if SERVER then
     concommand.Add("vjgm_test_ai_states", function(ply, cmd, args)
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
-        include("npc/config/ai_test_config.lua")
-        local scenario = VJGM.Config.AITestScenarios.CombatStatesTest
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.CombatStatesTest
         
         if not scenario then
             print("Scenario not found")
@@ -438,8 +436,7 @@ if SERVER then
     concommand.Add("vjgm_test_ai_comm", function(ply, cmd, args)
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
-        include("npc/config/ai_test_config.lua")
-        local scenario = VJGM.Config.AITestScenarios.GroupCommunicationTest
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.GroupCommunicationTest
         
         if not scenario then
             print("Scenario not found")
@@ -461,8 +458,7 @@ if SERVER then
     concommand.Add("vjgm_test_ai_full", function(ply, cmd, args)
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         
-        include("npc/config/ai_test_config.lua")
-        local scenario = VJGM.Config.AITestScenarios.FullAITest
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.FullAITest
         
         if not scenario then
             print("Scenario not found")

@@ -637,6 +637,21 @@ if SERVER then
     end
     
     --[[
+        Get NPC faction for comparison
+        @param npc: The NPC entity
+        @return string: Faction name or nil
+    ]]--
+    function VJGM.AIBehaviors.GetNPCFaction(npc)
+        if not IsValid(npc) then return nil end
+        
+        if npc.IsVJBaseSNPC and npc.VJ_NPC_Class then
+            return npc.VJ_NPC_Class[1]
+        end
+        
+        return nil
+    end
+    
+    --[[
         Get nearby enemy entities
         @param npc: The NPC entity
         @param radius: Search radius
@@ -647,10 +662,7 @@ if SERVER then
         local npcPos = npc:GetPos()
         
         -- Get NPC faction
-        local npcFaction = nil
-        if npc.IsVJBaseSNPC and npc.VJ_NPC_Class then
-            npcFaction = npc.VJ_NPC_Class[1]
-        end
+        local npcFaction = VJGM.AIBehaviors.GetNPCFaction(npc)
         
         -- Find potential enemies in radius
         for _, ent in ipairs(ents.FindInSphere(npcPos, radius)) do
@@ -693,10 +705,7 @@ if SERVER then
         local npcPos = npc:GetPos()
         
         -- Get NPC faction
-        local npcFaction = nil
-        if npc.IsVJBaseSNPC and npc.VJ_NPC_Class then
-            npcFaction = npc.VJ_NPC_Class[1]
-        end
+        local npcFaction = VJGM.AIBehaviors.GetNPCFaction(npc)
         
         -- Find potential allies in radius
         for _, ent in ipairs(ents.FindInSphere(npcPos, radius)) do
