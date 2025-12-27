@@ -1,3 +1,2 @@
-# Lua
-
-Lua scripts for Garry's Mod tools.
+# Folder Description
+This folder is designated for LUA scripts.
