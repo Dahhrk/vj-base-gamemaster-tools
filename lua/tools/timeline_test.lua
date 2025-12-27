@@ -78,11 +78,11 @@ if CLIENT then
         -- Test Case 3: Edge Cases
         VJGM.TimelineTest.CreateTestCase(container, "Test 3: Edge Cases (Very Short & Very Long)", function(timeline)
             timeline:SetMaxTime(500)
-            timeline:AddEvent("Very Short", 10, 12, Color(255, 100, 100), "Event lasting only 2 seconds")
-            timeline:AddEvent("Very Long", 50, 450, Onyx.Colors.Primary, "Event spanning almost entire timeline (400s)")
-            timeline:AddEvent("Instant Event", 100, 101, Color(100, 255, 100), "Nearly instant event (1 second)")
-            timeline:AddEvent("Medium", 200, 280, Onyx.Colors.Success, "Medium duration event")
-            timeline:AddEvent("Another Short", 300, 305, Color(100, 100, 255), "5 second event")
+            timeline:AddEvent("Very Short", 10, 12, Color(255, 100, 100), "Event lasting only 2 seconds (10-12)")
+            timeline:AddEvent("Very Long", 50, 450, Onyx.Colors.Primary, "Event spanning almost entire timeline (400s, 50-450)")
+            timeline:AddEvent("Instant Event", 100, 101, Color(100, 255, 100), "Nearly instant event (1 second, 100-101)")
+            timeline:AddEvent("Medium", 200, 280, Onyx.Colors.Success, "Medium duration event (80s, 200-280)")
+            timeline:AddEvent("Another Short", 300, 305, Color(100, 100, 255), "Short event (5 seconds, 300-305)")
         end)
         
         -- Test Case 4: Heavy Overlap Stress Test

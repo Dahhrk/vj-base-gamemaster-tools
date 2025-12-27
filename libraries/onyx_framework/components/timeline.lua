@@ -41,9 +41,6 @@ if CLIENT then
         -- Draw background
         Onyx.DrawRoundedBox(0, 0, w, h, 4, self.backgroundColor)
         
-        -- Calculate effective width with scaling
-        local effectiveWidth = w * self.scale
-        
         -- Draw timeline track
         local trackY = h / 2
         surface.SetDrawColor(self.timelineColor)
