@@ -44,7 +44,11 @@ The project now includes the **Onyx UI Framework** - a modern, component-based U
 - **OnyxSlider**: Interactive value sliders with live display
 - **OnyxTabs**: Organized tab system for multi-section interfaces
 - **OnyxMinimap**: Interactive world map visualization
-- **OnyxTimeline**: Event phase timeline with drag-to-seek
+- **OnyxTimeline**: Event phase timeline with dynamic scaling, tooltips, and overlapping event support
+  - Mouse wheel zoom (0.5x to 3.0x)
+  - Hover tooltips with event details
+  - Automatic multi-row layout for overlapping events
+  - Proportional duration display
 
 ## Quick Start
 
@@ -54,6 +58,7 @@ vjgm_panel              - Open main control panel
 vjgm_spawn_editor       - Open Spawn Point Editor (Onyx UI)
 vjgm_wave_manager       - Open Wave Manager (Onyx UI)
 vjgm_events_dashboard   - Open Dynamic Events Dashboard (Onyx UI)
+vjgm_timeline_test      - Open Timeline Component Test Suite
 ```
 
 ### Basic Usage
@@ -67,6 +72,7 @@ vjgm_events_dashboard   - Open Dynamic Events Dashboard (Onyx UI)
 - **UI Editor Documentation**: See `UI_EDITOR_IMPLEMENTATION.md` for UI features
 - **Onyx Framework**: See `libraries/onyx_framework/README.md`
 - **Tools Documentation**: See `lua/tools/README.md`
+- **Timeline Enhancement**: See `TIMELINE_ENHANCEMENT_DOCS.md` for OnyxTimeline upgrades
 
 ## Requirements
 
