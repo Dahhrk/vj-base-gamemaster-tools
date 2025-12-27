@@ -206,6 +206,11 @@ if SERVER then
                         VJGM.RoleBasedNPCs.AssignRole(npc, npcGroup.role, npcGroup.roleConfig or {})
                     end
                     
+                    -- Enable AI behaviors if specified
+                    if npcGroup.aiOptions and VJGM.AIBehaviors then
+                        VJGM.AIBehaviors.EnableForNPC(npc, npcGroup.aiOptions)
+                    end
+                    
                     -- Track spawned NPC
                     table.insert(activeWave.spawnedNPCs, npc)
                     
