@@ -101,6 +101,12 @@ if SERVER then
         count = count or defaultCount
         radius = radius or defaultRadius
         
+        -- Validate count to prevent division by zero
+        if count <= 0 then
+            ErrorNoHalt(prefix .. " SpawnPoints: Invalid count (must be > 0)\n")
+            return
+        end
+        
         local angleStep = 360 / count
         
         for i = 1, count do

@@ -71,7 +71,7 @@ if SERVER then
         
         -- VJ Base specific customization (already applied in dynamic_spawner.lua pre-spawn)
         -- This is for any post-spawn VJ Base settings
-        if npc.IsVJBaseSNPC and customization.vjbase and enableVJBase then
+        if npc.IsVJBaseSNPC == true and customization.vjbase and enableVJBase then
             VJGM.NPCCustomizer.ApplyVJBasePostSpawn(npc, customization.vjbase)
         end
     end
@@ -143,7 +143,7 @@ if SERVER then
         @param vjSettings: VJ Base settings table
     ]]--
     function VJGM.NPCCustomizer.ApplyVJBasePostSpawn(npc, vjSettings)
-        if not IsValid(npc) or not npc.IsVJBaseSNPC then return end
+        if not IsValid(npc) or npc.IsVJBaseSNPC ~= true then return end
         
         -- Set target (if specified)
         if vjSettings.target and IsValid(vjSettings.target) then

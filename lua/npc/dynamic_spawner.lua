@@ -26,6 +26,7 @@ if SERVER then
     local activeWaves = {}
     local waveTimers = {}
     local globalSpawnID = 0
+    local activeWaveCount = 0  -- Performance: track count instead of using table.Count()
     
     --[[
         Initialize the NPC spawner system
@@ -63,8 +64,8 @@ if SERVER then
             return nil
         end
         
-        -- Check max active waves limit
-        if table.Count(activeWaves) >= maxWaves then
+        -- Check max active waves limit using counter
+        if activeWaveCount >= maxWaves then
             ErrorNoHalt(prefix .. " StartWave: Maximum active waves limit reached (" .. maxWaves .. ")\n")
             return nil
         end
@@ -86,6 +87,8 @@ if SERVER then
             isActive = true,
             eventTrigger = eventTrigger or {}
         }
+        
+        activeWaveCount = activeWaveCount + 1
         
         print(prefix .. " Starting wave: " .. waveID)
         
@@ -180,7 +183,7 @@ if SERVER then
                     end
                     
                     -- Pre-spawn customization for VJ Base NPCs
-                    if npc.IsVJBaseSNPC then
+                    if npc.IsVJBaseSNPC == true then
                         -- Apply VJ Base specific settings before spawn
                         if customization.vjbase then
                             VJGM.NPCSpawner.ApplyVJBaseSettings(npc, customization.vjbase)
@@ -215,7 +218,7 @@ if SERVER then
         @param vjSettings: VJ Base settings table
     ]]--
     function VJGM.NPCSpawner.ApplyVJBaseSettings(npc, vjSettings)
-        if not IsValid(npc) or not npc.IsVJBaseSNPC then return end
+        if not IsValid(npc) or npc.IsVJBaseSNPC ~= true then return end
         
         local defaultFaction = VJGM.Config.Get("VJBase", "DefaultFaction", "VJ_FACTION_ANTLION")
         local defaultCallForHelp = VJGM.Config.Get("VJBase", "DefaultCallForHelp", true)
@@ -303,6 +306,7 @@ if SERVER then
         end
         
         activeWaves[waveID] = nil
+        activeWaveCount = activeWaveCount - 1
     end
     
     --[[
