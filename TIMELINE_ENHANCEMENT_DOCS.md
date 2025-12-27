@@ -101,11 +101,12 @@ The timeline automatically handles overlapping events by organizing them into mu
 
 #### AddEvent (Enhanced)
 ```lua
-timeline:AddEvent(name, startTime, endTime, color, description)
+local event = timeline:AddEvent(name, startTime, endTime, color, description)
 ```
 - Added `description` parameter (optional)
+- **Validation**: Returns `nil` if endTime <= startTime (prints warning to console)
 - Automatically calls `OrganizeEventRows()` after adding
-- Returns the event object
+- Returns the event object on success, nil on failure
 
 #### ClearEvents (Enhanced)
 ```lua

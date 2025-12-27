@@ -219,9 +219,6 @@ if CLIENT then
         local event = self.hoveredEvent
         local mouseX, mouseY = self:LocalToScreen(self:CursorPos())
         
-        -- Validate event has positive duration
-        if event.endTime <= event.startTime then return end
-        
         -- Calculate tooltip dimensions
         surface.SetFont(Onyx.Fonts.Small)
         local nameWidth, _ = surface.GetTextSize(event.name or "Event")
@@ -286,6 +283,12 @@ if CLIENT then
     end
     
     function PANEL:AddEvent(name, startTime, endTime, color, description)
+        -- Validate event has positive duration
+        if endTime <= startTime then
+            print("[OnyxTimeline] Warning: Event '" .. tostring(name) .. "' has invalid duration (start: " .. startTime .. ", end: " .. endTime .. "). Event not added.")
+            return nil
+        end
+        
         local event = {
             name = name,
             startTime = startTime,
