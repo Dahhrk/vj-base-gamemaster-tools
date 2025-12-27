@@ -23,6 +23,11 @@ if CLIENT then
     -- Cached spawn points for visualization
     local cachedSpawnPoints = {}
     
+    -- Cached NPCs for visualization
+    local cachedNPCs = {}
+    local npcCacheUpdateTime = 0
+    local NPC_CACHE_INTERVAL = 0.5  -- Update NPC cache every 0.5 seconds
+    
     --[[
         Enable/disable visualization
         @param enabled: Boolean
@@ -111,15 +116,28 @@ if CLIENT then
     end
     
     --[[
+        Update NPC cache
+    ]]--
+    local function UpdateNPCCache()
+        if CurTime() > npcCacheUpdateTime then
+            cachedNPCs = ents.FindByClass("npc_*")
+            npcCacheUpdateTime = CurTime() + NPC_CACHE_INTERVAL
+        end
+    end
+    
+    --[[
         Draw NPC faction markers above their heads
     ]]--
     local function DrawNPCMarkers()
         if not showNPCMarkers then return end
         
+        -- Update cache if needed
+        UpdateNPCCache()
+        
         local plyPos = LocalPlayer():GetPos()
         local maxDist = 3000
         
-        for _, npc in ipairs(ents.FindByClass("npc_*")) do
+        for _, npc in ipairs(cachedNPCs) do
             if IsValid(npc) and npc:Health() > 0 then
                 local dist = plyPos:Distance(npc:GetPos())
                 

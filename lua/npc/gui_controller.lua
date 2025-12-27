@@ -20,6 +20,15 @@ if CLIENT then
     -- Load configuration
     include("npc/config/init.lua")
     
+    -- Load wave templates early
+    local templatesLoaded, templatesError = pcall(function()
+        include("npc/wave_templates.lua")
+    end)
+    
+    if not templatesLoaded then
+        print("[VJGM] Warning: Failed to load wave templates: " .. tostring(templatesError))
+    end
+    
     VJGM = VJGM or {}
     VJGM.GUIController = VJGM.GUIController or {}
     
@@ -351,6 +360,9 @@ if CLIENT then
         groupEntry:SetSize(150, 25)
         groupEntry:SetValue("default")
         
+        -- Store reference for template buttons
+        panel.GroupEntry = groupEntry
+        
         -- Spawn button
         local spawnBtn = vgui.Create("DButton", panel)
         spawnBtn:SetPos(10, 180)
@@ -382,13 +394,8 @@ if CLIENT then
         templateScroll:SetPos(10, 260)
         templateScroll:SetSize(panel:GetWide() - 20, 250)
         
-        -- Load wave templates with error handling
-        local templatesLoaded, templatesModule = pcall(function()
-            include("npc/wave_templates.lua")
-            return VJGM.WaveTemplates
-        end)
-        
-        if templatesLoaded and templatesModule then
+        -- Use already-loaded wave templates
+        if VJGM.WaveTemplates then
             local templates = VJGM.WaveTemplates.GetAll()
             local yPos = 0
             
@@ -439,9 +446,11 @@ if CLIENT then
                 spawnTemplateBtn:SetSize(105, 50)
                 spawnTemplateBtn:SetText("▶ Spawn Wave")
                 spawnTemplateBtn.DoClick = function()
+                    local spawnGroup = panel.GroupEntry and panel.GroupEntry:GetValue() or "default"
+                    
                     net.Start("VJGM_SpawnTemplate")
                     net.WriteString(template.id)
-                    net.WriteString(groupEntry:GetValue())
+                    net.WriteString(spawnGroup)
                     net.SendToServer()
                     
                     -- Switch to Active Waves tab to see the result
