@@ -7,8 +7,9 @@
 
 if SERVER then
     
-    -- Load configuration
+    -- Load configuration once
     include("npc/config/init.lua")
+    include("npc/config/ai_test_config.lua")
     
     VJGM = VJGM or {}
     VJGM.TestingTools = VJGM.TestingTools or {}
@@ -343,6 +344,139 @@ if SERVER then
     end)
     
     -- Help command
+    -- AI Behaviors commands
+    concommand.Add("vjgm_list_ai_npcs", function(ply, cmd, args)
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
+        if not VJGM.AIBehaviors then
+            print("AI Behaviors system not loaded")
+            return
+        end
+        
+        local aiNPCs = VJGM.AIBehaviors.GetAINPCs()
+        print("========== AI-Enabled NPCs ==========")
+        print("  Total: " .. #aiNPCs)
+        for i, npc in ipairs(aiNPCs) do
+            if IsValid(npc) then
+                local state = npc.VJGM_CombatState or "normal"
+                print("  [" .. i .. "] " .. npc:GetClass() .. " | State: " .. state .. " | HP: " .. npc:Health() .. "/" .. npc:GetMaxHealth())
+            end
+        end
+        print("====================================")
+    end)
+    
+    -- AI Test scenario commands
+    concommand.Add("vjgm_test_ai_cover", function(ply, cmd, args)
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
+        
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.CoverSeekingTest
+        
+        if not scenario then
+            print("Scenario not found")
+            return
+        end
+        
+        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 500 or Vector(0, 0, 100)
+        
+        -- Setup scenario
+        if scenario.setup then
+            scenario.setup(spawnPos)
+        end
+        
+        -- Start wave
+        if VJGM.NPCSpawner and scenario.wave then
+            local waveID = VJGM.NPCSpawner.StartWave(scenario.wave)
+            print("Started AI test: " .. scenario.name .. " (" .. tostring(waveID) .. ")")
+        end
+    end)
+    
+    concommand.Add("vjgm_test_ai_target", function(ply, cmd, args)
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
+        
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.TargetPriorityTest
+        
+        if not scenario then
+            print("Scenario not found")
+            return
+        end
+        
+        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 500 or Vector(0, 0, 100)
+        
+        if scenario.setup then
+            scenario.setup(spawnPos)
+        end
+        
+        if VJGM.NPCSpawner and scenario.wave then
+            local waveID = VJGM.NPCSpawner.StartWave(scenario.wave)
+            print("Started AI test: " .. scenario.name .. " (" .. tostring(waveID) .. ")")
+        end
+    end)
+    
+    concommand.Add("vjgm_test_ai_states", function(ply, cmd, args)
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
+        
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.CombatStatesTest
+        
+        if not scenario then
+            print("Scenario not found")
+            return
+        end
+        
+        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 500 or Vector(0, 0, 100)
+        
+        if scenario.setup then
+            scenario.setup(spawnPos)
+        end
+        
+        if VJGM.NPCSpawner and scenario.wave then
+            local waveID = VJGM.NPCSpawner.StartWave(scenario.wave)
+            print("Started AI test: " .. scenario.name .. " (" .. tostring(waveID) .. ")")
+        end
+    end)
+    
+    concommand.Add("vjgm_test_ai_comm", function(ply, cmd, args)
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
+        
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.GroupCommunicationTest
+        
+        if not scenario then
+            print("Scenario not found")
+            return
+        end
+        
+        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 500 or Vector(0, 0, 100)
+        
+        if scenario.setup then
+            scenario.setup(spawnPos)
+        end
+        
+        if VJGM.NPCSpawner and scenario.wave then
+            local waveID = VJGM.NPCSpawner.StartWave(scenario.wave)
+            print("Started AI test: " .. scenario.name .. " (" .. tostring(waveID) .. ")")
+        end
+    end)
+    
+    concommand.Add("vjgm_test_ai_full", function(ply, cmd, args)
+        if not VJGM.TestingTools.IsAuthorized(ply) then return end
+        
+        local scenario = VJGM.Config.AITestScenarios and VJGM.Config.AITestScenarios.FullAITest
+        
+        if not scenario then
+            print("Scenario not found")
+            return
+        end
+        
+        local spawnPos = IsValid(ply) and ply:GetPos() + ply:GetForward() * 500 or Vector(0, 0, 100)
+        
+        if scenario.setup then
+            scenario.setup(spawnPos)
+        end
+        
+        if VJGM.NPCSpawner and scenario.wave then
+            local waveID = VJGM.NPCSpawner.StartWave(scenario.wave)
+            print("Started AI test: " .. scenario.name .. " (" .. tostring(waveID) .. ")")
+        end
+    end)
+    
     concommand.Add("vjgm_help", function(ply, cmd, args)
         if not VJGM.TestingTools.IsAuthorized(ply) then return end
         print("========== VJGM Testing Commands ==========")
@@ -357,6 +491,14 @@ if SERVER then
         print("  vjgm_list_roles - List all role-based NPCs")
         print("  vjgm_test_squad - Test squad creation")
         print("  vjgm_test_role_wave - Spawn test wave with roles")
+        print("")
+        print("AI Behaviors:")
+        print("  vjgm_list_ai_npcs - List all AI-enabled NPCs")
+        print("  vjgm_test_ai_cover - Test cover-seeking behavior")
+        print("  vjgm_test_ai_target - Test target prioritization")
+        print("  vjgm_test_ai_states - Test combat states")
+        print("  vjgm_test_ai_comm - Test group communication")
+        print("  vjgm_test_ai_full - Test all AI features")
         print("")
         print("Vehicles:")
         print("  vjgm_list_vehicles - List all spawned vehicles")
