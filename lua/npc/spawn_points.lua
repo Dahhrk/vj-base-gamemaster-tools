@@ -181,6 +181,26 @@ if SERVER then
         return groups
     end
     
+    --[[
+        Get all spawn point groups with their data
+        @return Table of group names
+    ]]--
+    function VJGM.SpawnPoints.GetAllGroups()
+        local groups = {}
+        for groupName, _ in pairs(spawnPointGroups) do
+            table.insert(groups, groupName)
+        end
+        return groups
+    end
+    
+    --[[
+        Get all spawn points (all groups)
+        @return Table with groups as keys and spawn point arrays as values
+    ]]--
+    function VJGM.SpawnPoints.GetAllSpawnPoints()
+        return spawnPointGroups
+    end
+    
     -- Initialize on load
     hook.Add("Initialize", "VJGM_SpawnPoints_Init", function()
         VJGM.SpawnPoints.Initialize()

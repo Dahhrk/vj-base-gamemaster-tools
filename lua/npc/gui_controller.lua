@@ -20,6 +20,15 @@ if CLIENT then
     -- Load configuration
     include("npc/config/init.lua")
     
+    -- Load wave templates early
+    local templatesLoaded, templatesError = pcall(function()
+        include("npc/wave_templates.lua")
+    end)
+    
+    if not templatesLoaded then
+        print("[VJGM] Warning: Failed to load wave templates: " .. tostring(templatesError))
+    end
+    
     VJGM = VJGM or {}
     VJGM.GUIController = VJGM.GUIController or {}
     
@@ -103,32 +112,58 @@ if CLIENT then
     end
     
     --[[
-        Create Active Waves tab content
+        Create Active Waves tab content with enhanced visualization
         @param panel: Parent panel
     ]]--
     function VJGM.GUIController.CreateActiveWavesTab(panel)
-        -- Header
+        -- Header with statistics
         local header = vgui.Create("DLabel", panel)
-        header:SetPos(10, 10)
-        header:SetSize(panel:GetWide() - 20, 20)
+        header:Dock(TOP)
+        header:DockMargin(10, 10, 10, 5)
+        header:SetTall(20)
         header:SetText("Active Wave Management")
         header:SetFont("DermaDefaultBold")
         
+        -- Statistics panel
+        local statsPanel = vgui.Create("DPanel", panel)
+        statsPanel:Dock(TOP)
+        statsPanel:DockMargin(10, 0, 10, 5)
+        statsPanel:SetTall(30)
+        statsPanel.Paint = function(self, w, h)
+            draw.RoundedBox(4, 0, 0, w, h, Color(60, 60, 60, 255))
+        end
+        
+        local statsLabel = vgui.Create("DLabel", statsPanel)
+        statsLabel:Dock(FILL)
+        statsLabel:DockMargin(10, 5, 10, 5)
+        statsLabel:SetText("Total Waves: 0 | Total NPCs: 0 | Active: 0")
+        statsLabel:SetContentAlignment(5)
+        panel.StatsLabel = statsLabel
+        
+        -- Button toolbar
+        local toolbar = vgui.Create("DPanel", panel)
+        toolbar:Dock(TOP)
+        toolbar:DockMargin(10, 0, 10, 5)
+        toolbar:SetTall(30)
+        toolbar:SetPaintBackground(false)
+        
         -- Refresh button
-        local refreshBtn = vgui.Create("DButton", panel)
-        refreshBtn:SetPos(10, 35)
-        refreshBtn:SetSize(100, 25)
-        refreshBtn:SetText("Refresh")
+        local refreshBtn = vgui.Create("DButton", toolbar)
+        refreshBtn:Dock(LEFT)
+        refreshBtn:DockMargin(0, 0, 5, 0)
+        refreshBtn:SetWide(100)
+        refreshBtn:SetText("🔄 Refresh")
         refreshBtn.DoClick = function()
             net.Start("VJGM_RequestWaveList")
             net.SendToServer()
         end
         
         -- Stop All button
-        local stopAllBtn = vgui.Create("DButton", panel)
-        stopAllBtn:SetPos(120, 35)
-        stopAllBtn:SetSize(100, 25)
-        stopAllBtn:SetText("Stop All")
+        local stopAllBtn = vgui.Create("DButton", toolbar)
+        stopAllBtn:Dock(LEFT)
+        stopAllBtn:DockMargin(0, 0, 5, 0)
+        stopAllBtn:SetWide(100)
+        stopAllBtn:SetText("⏹ Stop All")
         stopAllBtn.DoClick = function()
             if not LocalPlayer():IsAdmin() then return end
             RunConsoleCommand("vjgm_wave_stop_all")
@@ -138,64 +173,136 @@ if CLIENT then
             end)
         end
         
-        -- Wave list
+        -- Wave visualization scroll panel
+        local scrollPanel = vgui.Create("DScrollPanel", panel)
+        scrollPanel:Dock(FILL)
+        scrollPanel:DockMargin(10, 0, 10, 5)
+        
+        -- Container for wave cards
+        local waveContainer = vgui.Create("DPanel", scrollPanel)
+        waveContainer:Dock(TOP)
+        waveContainer:SetTall(0)
+        waveContainer:SetPaintBackground(false)
+        panel.WaveContainer = waveContainer
+        
+        -- Store wave cards for updates
+        panel.WaveCards = {}
+        
+        -- Legacy wave list for compatibility
         local waveList = vgui.Create("DListView", panel)
-        waveList:SetPos(10, 70)
-        waveList:SetSize(panel:GetWide() - 20, panel:GetTall() - 140)
         waveList:SetMultiSelect(false)
         waveList:AddColumn("Wave ID")
         waveList:AddColumn("Current/Total")
         waveList:AddColumn("NPCs Alive")
         waveList:AddColumn("Status")
-        
+        waveList:SetVisible(false) -- Hidden but still used for data
         panel.WaveList = waveList
-        
-        -- Control buttons
-        local pauseBtn = vgui.Create("DButton", panel)
-        pauseBtn:SetPos(10, panel:GetTall() - 60)
-        pauseBtn:SetSize(100, 25)
-        pauseBtn:SetText("Pause")
-        pauseBtn.DoClick = function()
-            local selected = waveList:GetSelectedLine()
-            if selected then
-                local waveID = waveList:GetLine(selected):GetValue(1)
-                RunConsoleCommand("vjgm_wave_pause", waveID)
-            end
-        end
-        
-        local resumeBtn = vgui.Create("DButton", panel)
-        resumeBtn:SetPos(120, panel:GetTall() - 60)
-        resumeBtn:SetSize(100, 25)
-        resumeBtn:SetText("Resume")
-        resumeBtn.DoClick = function()
-            local selected = waveList:GetSelectedLine()
-            if selected then
-                local waveID = waveList:GetLine(selected):GetValue(1)
-                RunConsoleCommand("vjgm_wave_resume", waveID)
-            end
-        end
-        
-        local stopBtn = vgui.Create("DButton", panel)
-        stopBtn:SetPos(230, panel:GetTall() - 60)
-        stopBtn:SetSize(100, 25)
-        stopBtn:SetText("Stop")
-        stopBtn.DoClick = function()
-            local selected = waveList:GetSelectedLine()
-            if selected then
-                local waveID = waveList:GetLine(selected):GetValue(1)
-                RunConsoleCommand("vjgm_wave_stop", waveID)
-                timer.Simple(0.5, function()
-                    net.Start("VJGM_RequestWaveList")
-                    net.SendToServer()
-                end)
-            end
-        end
         
         -- Request initial data
         timer.Simple(0.1, function()
             net.Start("VJGM_RequestWaveList")
             net.SendToServer()
         end)
+    end
+    
+    --[[
+        Create a visual wave card for display
+        @param parent: Parent panel
+        @param waveData: Wave information table
+        @return Wave card panel
+    ]]--
+    function VJGM.GUIController.CreateWaveCard(parent, waveData)
+        local card = vgui.Create("DPanel", parent)
+        card:Dock(TOP)
+        card:DockMargin(0, 0, 0, 10)
+        card:SetTall(120)
+        
+        -- Color-coded based on status
+        local statusColor = waveData.active and Color(50, 100, 50, 255) or Color(100, 50, 50, 255)
+        
+        card.Paint = function(self, w, h)
+            -- Main card background
+            draw.RoundedBox(6, 0, 0, w, h, Color(45, 45, 45, 255))
+            
+            -- Status bar on left
+            draw.RoundedBox(6, 0, 0, 6, h, statusColor)
+            
+            -- Progress bar at bottom
+            local progress = waveData.current / math.max(waveData.total, 1)
+            draw.RoundedBox(0, 10, h - 8, (w - 20) * progress, 4, Color(100, 150, 255, 255))
+            draw.RoundedBox(0, 10, h - 8, w - 20, 4, Color(30, 30, 30, 255))
+        end
+        
+        -- Wave ID and status
+        local headerLabel = vgui.Create("DLabel", card)
+        headerLabel:SetPos(15, 10)
+        headerLabel:SetSize(card:GetWide() - 130, 20)
+        headerLabel:SetFont("DermaDefaultBold")
+        headerLabel:SetText(waveData.id)
+        
+        -- Status indicator
+        local statusLabel = vgui.Create("DLabel", card)
+        statusLabel:SetPos(card:GetWide() - 115, 10)
+        statusLabel:SetSize(100, 20)
+        statusLabel:SetText(waveData.active and "● ACTIVE" or "● INACTIVE")
+        statusLabel:SetTextColor(statusColor)
+        statusLabel:SetContentAlignment(6)
+        
+        -- Wave progress
+        local progressLabel = vgui.Create("DLabel", card)
+        progressLabel:SetPos(15, 35)
+        progressLabel:SetSize(150, 18)
+        progressLabel:SetText("Wave Progress: " .. waveData.current .. " / " .. waveData.total)
+        
+        -- NPC count with icon
+        local npcLabel = vgui.Create("DLabel", card)
+        npcLabel:SetPos(15, 55)
+        npcLabel:SetSize(150, 18)
+        npcLabel:SetText("👥 NPCs Alive: " .. waveData.npcs)
+        
+        -- Percentage bar text
+        local percentLabel = vgui.Create("DLabel", card)
+        percentLabel:SetPos(15, 75)
+        percentLabel:SetSize(150, 18)
+        local percent = math.floor((waveData.current / math.max(waveData.total, 1)) * 100)
+        percentLabel:SetText("Progress: " .. percent .. "%")
+        
+        -- Control buttons
+        local btnY = 35
+        local btnX = card:GetWide() - 110
+        
+        -- Pause/Resume button
+        local pauseBtn = vgui.Create("DButton", card)
+        pauseBtn:SetPos(btnX, btnY)
+        pauseBtn:SetSize(100, 25)
+        pauseBtn:SetText(waveData.paused and "▶ Resume" or "⏸ Pause")
+        pauseBtn.DoClick = function()
+            if waveData.paused then
+                RunConsoleCommand("vjgm_wave_resume", waveData.id)
+            else
+                RunConsoleCommand("vjgm_wave_pause", waveData.id)
+            end
+            timer.Simple(0.2, function()
+                net.Start("VJGM_RequestWaveList")
+                net.SendToServer()
+            end)
+        end
+        
+        -- Stop button
+        local stopBtn = vgui.Create("DButton", card)
+        stopBtn:SetPos(btnX, btnY + 30)
+        stopBtn:SetSize(100, 25)
+        stopBtn:SetText("⏹ Stop Wave")
+        stopBtn.DoClick = function()
+            RunConsoleCommand("vjgm_wave_stop", waveData.id)
+            timer.Simple(0.2, function()
+                net.Start("VJGM_RequestWaveList")
+                net.SendToServer()
+            end)
+        end
+        
+        card.waveData = waveData
+        return card
     end
     
     --[[
@@ -253,6 +360,9 @@ if CLIENT then
         groupEntry:SetSize(150, 25)
         groupEntry:SetValue("default")
         
+        -- Store reference for template buttons
+        panel.GroupEntry = groupEntry
+        
         -- Spawn button
         local spawnBtn = vgui.Create("DButton", panel)
         spawnBtn:SetPos(10, 180)
@@ -276,31 +386,85 @@ if CLIENT then
         local presetsLabel = vgui.Create("DLabel", panel)
         presetsLabel:SetPos(10, 230)
         presetsLabel:SetSize(panel:GetWide() - 20, 20)
-        presetsLabel:SetText("Quick Presets:")
+        presetsLabel:SetText("Wave Templates:")
         presetsLabel:SetFont("DermaDefaultBold")
         
-        local basicBtn = vgui.Create("DButton", panel)
-        basicBtn:SetPos(10, 260)
-        basicBtn:SetSize(150, 25)
-        basicBtn:SetText("Basic Wave")
-        basicBtn.DoClick = function()
-            RunConsoleCommand("vjgm_test_basic")
-        end
+        -- Template browser
+        local templateScroll = vgui.Create("DScrollPanel", panel)
+        templateScroll:SetPos(10, 260)
+        templateScroll:SetSize(panel:GetWide() - 20, 250)
         
-        local roleBtn = vgui.Create("DButton", panel)
-        roleBtn:SetPos(170, 260)
-        roleBtn:SetSize(150, 25)
-        roleBtn:SetText("Role Squad Wave")
-        roleBtn.DoClick = function()
-            RunConsoleCommand("vjgm_test_role_wave")
-        end
-        
-        local vehicleBtn = vgui.Create("DButton", panel)
-        vehicleBtn:SetPos(330, 260)
-        vehicleBtn:SetSize(150, 25)
-        vehicleBtn:SetText("Vehicle Wave")
-        vehicleBtn.DoClick = function()
-            RunConsoleCommand("vjgm_test_vehicle_wave")
+        -- Use already-loaded wave templates
+        if VJGM.WaveTemplates then
+            local templates = VJGM.WaveTemplates.GetAll()
+            local yPos = 0
+            
+            for _, template in ipairs(templates) do
+                local templateCard = vgui.Create("DPanel", templateScroll)
+                templateCard:SetPos(0, yPos)
+                templateCard:SetSize(templateScroll:GetWide() - 20, 70)
+                templateCard.Paint = function(self, w, h)
+                    draw.RoundedBox(4, 0, 0, w, h, Color(55, 55, 55, 255))
+                    
+                    -- Difficulty color bar
+                    local diffColor = Color(100, 100, 100, 255)
+                    if template.difficulty == "Easy" then
+                        diffColor = Color(100, 200, 100, 255)
+                    elseif template.difficulty == "Medium" then
+                        diffColor = Color(200, 200, 100, 255)
+                    elseif template.difficulty == "Hard" or template.difficulty == "Very Hard" then
+                        diffColor = Color(200, 100, 100, 255)
+                    elseif template.difficulty == "Boss" or template.difficulty == "Endless" then
+                        diffColor = Color(200, 100, 200, 255)
+                    end
+                    draw.RoundedBox(4, 0, 0, 4, h, diffColor)
+                end
+                
+                -- Template name
+                local nameLabel = vgui.Create("DLabel", templateCard)
+                nameLabel:SetPos(10, 5)
+                nameLabel:SetSize(templateCard:GetWide() - 130, 18)
+                nameLabel:SetFont("DermaDefaultBold")
+                nameLabel:SetText(template.name)
+                
+                -- Template description
+                local descLabel = vgui.Create("DLabel", templateCard)
+                descLabel:SetPos(10, 25)
+                descLabel:SetSize(templateCard:GetWide() - 130, 16)
+                descLabel:SetText(template.description)
+                
+                -- Difficulty badge
+                local diffLabel = vgui.Create("DLabel", templateCard)
+                diffLabel:SetPos(10, 45)
+                diffLabel:SetSize(100, 16)
+                diffLabel:SetText("⚡ " .. template.difficulty)
+                diffLabel:SetTextColor(Color(150, 150, 150, 255))
+                
+                -- Spawn button
+                local spawnTemplateBtn = vgui.Create("DButton", templateCard)
+                spawnTemplateBtn:SetPos(templateCard:GetWide() - 115, 10)
+                spawnTemplateBtn:SetSize(105, 50)
+                spawnTemplateBtn:SetText("▶ Spawn Wave")
+                spawnTemplateBtn.DoClick = function()
+                    local spawnGroup = panel.GroupEntry and panel.GroupEntry:GetValue() or "default"
+                    
+                    net.Start("VJGM_SpawnTemplate")
+                    net.WriteString(template.id)
+                    net.WriteString(spawnGroup)
+                    net.SendToServer()
+                    
+                    -- Switch to Active Waves tab to see the result
+                    timer.Simple(0.5, function()
+                        if IsValid(panel:GetParent()) then
+                            -- Request wave list update
+                            net.Start("VJGM_RequestWaveList")
+                            net.SendToServer()
+                        end
+                    end)
+                end
+                
+                yPos = yPos + 75
+            end
         end
     end
     
@@ -419,6 +583,37 @@ if CLIENT then
             local group = groupEntry:GetValue()
             RunConsoleCommand("vjgm_list_spawns", group)
         end
+        
+        -- Visualization section
+        local vizLabel = vgui.Create("DLabel", panel)
+        vizLabel:SetPos(10, 345)
+        vizLabel:SetSize(panel:GetWide() - 20, 20)
+        vizLabel:SetText("3D Visualization:")
+        vizLabel:SetFont("DermaDefaultBold")
+        
+        local toggleVizBtn = vgui.Create("DButton", panel)
+        toggleVizBtn:SetPos(10, 375)
+        toggleVizBtn:SetSize(150, 25)
+        toggleVizBtn:SetText("Toggle Visualizer")
+        toggleVizBtn.DoClick = function()
+            RunConsoleCommand("vjgm_visualizer_toggle")
+        end
+        
+        local showSpawnsBtn = vgui.Create("DButton", panel)
+        showSpawnsBtn:SetPos(170, 375)
+        showSpawnsBtn:SetSize(150, 25)
+        showSpawnsBtn:SetText("Toggle Spawn Markers")
+        showSpawnsBtn.DoClick = function()
+            RunConsoleCommand("vjgm_visualizer_spawns")
+        end
+        
+        local requestDataBtn = vgui.Create("DButton", panel)
+        requestDataBtn:SetPos(10, 410)
+        requestDataBtn:SetSize(150, 25)
+        requestDataBtn:SetText("Refresh Visualization")
+        requestDataBtn.DoClick = function()
+            RunConsoleCommand("vjgm_visualizer_request_spawns")
+        end
     end
     
     --[[
@@ -476,6 +671,29 @@ if CLIENT then
         vehiclesBtn:SetText("List Vehicles (Console)")
         vehiclesBtn.DoClick = function()
             RunConsoleCommand("vjgm_list_vehicles")
+        end
+        
+        -- Visualization section
+        local vizLabel = vgui.Create("DLabel", panel)
+        vizLabel:SetPos(10, 230)
+        vizLabel:SetSize(panel:GetWide() - 20, 20)
+        vizLabel:SetText("Visualization Controls:")
+        vizLabel:SetFont("DermaDefaultBold")
+        
+        local npcMarkersBtn = vgui.Create("DButton", panel)
+        npcMarkersBtn:SetPos(10, 260)
+        npcMarkersBtn:SetSize(180, 25)
+        npcMarkersBtn:SetText("Toggle NPC Markers")
+        npcMarkersBtn.DoClick = function()
+            RunConsoleCommand("vjgm_visualizer_npcs")
+        end
+        
+        local toggleAllVizBtn = vgui.Create("DButton", panel)
+        toggleAllVizBtn:SetPos(200, 260)
+        toggleAllVizBtn:SetSize(180, 25)
+        toggleAllVizBtn:SetText("Toggle All Visualization")
+        toggleAllVizBtn.DoClick = function()
+            RunConsoleCommand("vjgm_visualizer_toggle")
         end
     end
     
@@ -592,24 +810,63 @@ if CLIENT then
             local totalWaves = net.ReadUInt(8)
             local aliveNPCs = net.ReadUInt(16)
             local isActive = net.ReadBool()
+            local isPaused = net.ReadBool()
             
             table.insert(waves, {
                 id = waveID,
                 current = currentWave,
                 total = totalWaves,
                 npcs = aliveNPCs,
-                active = isActive
+                active = isActive,
+                paused = isPaused
             })
         end
         
         -- Update active panel if it exists
-        if IsValid(activePanel) and activePanel.WaveList then
-            local list = activePanel.WaveList
-            list:Clear()
+        if IsValid(activePanel) then
+            -- Update statistics
+            if activePanel.StatsLabel then
+                local totalNPCs = 0
+                local activeWaves = 0
+                for _, wave in ipairs(waves) do
+                    totalNPCs = totalNPCs + wave.npcs
+                    if wave.active then activeWaves = activeWaves + 1 end
+                end
+                activePanel.StatsLabel:SetText(string.format("Total Waves: %d | Total NPCs: %d | Active: %d", 
+                    waveCount, totalNPCs, activeWaves))
+            end
             
-            for _, wave in ipairs(waves) do
-                local status = wave.active and "Active" or "Inactive"
-                list:AddLine(wave.id, wave.current .. "/" .. wave.total, wave.npcs, status)
+            -- Update wave cards
+            if activePanel.WaveContainer and activePanel.WaveCards then
+                -- Clear existing cards
+                for _, card in pairs(activePanel.WaveCards) do
+                    if IsValid(card) then
+                        card:Remove()
+                    end
+                end
+                activePanel.WaveCards = {}
+                
+                -- Create new cards
+                local totalHeight = 0
+                for _, wave in ipairs(waves) do
+                    local card = VJGM.GUIController.CreateWaveCard(activePanel.WaveContainer, wave)
+                    table.insert(activePanel.WaveCards, card)
+                    totalHeight = totalHeight + 130  -- Card height + margin
+                end
+                
+                -- Update container height
+                activePanel.WaveContainer:SetTall(math.max(totalHeight, 100))
+            end
+            
+            -- Legacy list update for compatibility
+            if activePanel.WaveList then
+                local list = activePanel.WaveList
+                list:Clear()
+                
+                for _, wave in ipairs(waves) do
+                    local status = wave.active and "Active" or "Inactive"
+                    list:AddLine(wave.id, wave.current .. "/" .. wave.total, wave.npcs, status)
+                end
             end
         end
         
@@ -667,6 +924,7 @@ if SERVER then
         util.AddNetworkString("VJGM_RequestWaveList")
         util.AddNetworkString("VJGM_WaveListUpdate")
         util.AddNetworkString("VJGM_SpawnQuickWave")
+        util.AddNetworkString("VJGM_SpawnTemplate")
         util.AddNetworkString("VJGM_CreateRadialSpawns")
         util.AddNetworkString("VJGM_ImportSpawns")
         
@@ -711,6 +969,27 @@ if SERVER then
                 }
                 
                 VJGM.NPCSpawner.StartWave(waveConfig)
+            end
+        end)
+        
+        -- Spawn from template
+        net.Receive("VJGM_SpawnTemplate", function(len, ply)
+            if not ply:IsAdmin() then return end
+            
+            local templateID = net.ReadString()
+            local spawnGroup = net.ReadString()
+            
+            -- Wave templates should already be loaded
+            if VJGM.WaveTemplates then
+                local waveID = VJGM.WaveTemplates.SpawnFromTemplate(templateID, spawnGroup)
+                
+                if waveID then
+                    print("[VJGM] Spawned wave from template: " .. templateID .. " (Wave ID: " .. waveID .. ")")
+                else
+                    ErrorNoHalt("[VJGM] Failed to spawn wave from template: " .. templateID .. "\n")
+                end
+            else
+                ErrorNoHalt("[VJGM] Wave templates system not loaded\n")
             end
         end)
         
@@ -761,6 +1040,7 @@ if SERVER then
                 net.WriteUInt(status.totalWaves, 8)
                 net.WriteUInt(status.aliveNPCs, 16)
                 net.WriteBool(status.isActive)
+                net.WriteBool(status.isPaused)
             end
         end
         
